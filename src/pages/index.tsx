@@ -1,13 +1,12 @@
-// src/pages/index.tsx
-
 import React from "react";
-import PoolMap from "../slices/map/Map";
-import Search from "../slices/search/Search";
+// import SearchBar from '../components/SearchBar';
+import SearchBar from "@/components/searchBar/SearchBar";
+import PoolCards from "@/components/poolCards/PoolCards";
+import PoolMap from "@/slices/map/Map";
 import { useSelector } from "react-redux";
-import { RootState } from "../store";
+import { RootState } from "@/store";
 
 const HomePage: React.FC = () => {
-  // Тестовые данные бассейнов с типом `[number, number]` для `coordinates`
   const allPools = [
     {
       id: "1",
@@ -41,7 +40,6 @@ const HomePage: React.FC = () => {
     (state: RootState) => state.search
   );
 
-  // Фильтрация бассейнов на основе выбранных критериев
   const filteredPools = allPools.filter((pool) => {
     const matchesDistrict = district ? pool.district === district : true;
     const matchesAgeGroup = ageGroup ? pool.ageGroup === ageGroup : true;
@@ -51,13 +49,29 @@ const HomePage: React.FC = () => {
   });
 
   return (
+ 
+
     <div>
-      <h1>Агрегатор детских бассейнов</h1>
-      <Search />
-      <div>
-        <p>Найдено бассейнов: {filteredPools.length}</p>
+      <section style={{ height: "100vh", padding: "20px" }}>
+        <SearchBar />
+        <PoolCards />
+      </section>
+      <section style={{ height: "100vh", padding: "20px", color: "#fff" }}>
+        <h2>Вторая секция</h2>
+        {/* <p>Прокрутите вниз, чтобы увидеть, как фон остается на месте.</p> */}
+        <PoolCards />
+      </section>
+      <section style={{ height: "100vh", padding: "20px", color: "#fff" }}>
+        <h2>Третья секция</h2>
+        <div style={{
+          display: "flex",
+          justifyContent: "center",
+        }}>
+
         <PoolMap locations={filteredPools} />
-      </div>
+        </div>
+        {/* <p>Прокрутите вниз, чтобы увидеть, как фон остается на месте.</p> */}
+      </section>
     </div>
   );
 };

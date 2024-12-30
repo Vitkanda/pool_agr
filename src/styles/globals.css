@@ -1,0 +1,10 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-image: url('/images/background.webp');
+    background-size: cover; /* Масштабирование изображения */
+    background-position: center; /* Центрирование изображения */
+    background-attachment: fixed; /* Фиксируем фон для эффекта параллакса */
+    background-repeat: no-repeat; /* Избегаем повторения */
+}

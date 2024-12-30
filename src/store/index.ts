@@ -1,16 +1,15 @@
-// src/store/index.ts
-
-import { configureStore } from '@reduxjs/toolkit';
-import mapReducer from '../slices/map/mapSlice';
-import searchReducer from '../slices/search/searchSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import searchReducer from "../slices/search/searchSlice";
+import mapReducer from "../slices/map/mapSlice";
 
 const store = configureStore({
-    reducer: {
-        map: mapReducer,
-        search: searchReducer,
-    },
+  reducer: {
+    search: searchReducer,
+    map: mapReducer,
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
 export default store;

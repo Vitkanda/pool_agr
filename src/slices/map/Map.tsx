@@ -37,8 +37,8 @@ const PoolMap: React.FC<MapProps> = ({ locations }) => {
     <YMaps query={{ apikey: "4db7472d-2936-422d-9f44-ff9da9481d65" }}>
       <Map
         defaultState={{ center, zoom }}
-        width="100%"
-        height="400px"
+        width="80%"
+        height="600px"
         onBoundsChange={(e: YandexBoundsChangeEvent) => {
           const newCenter = e.get("target").getCenter();
           const newZoom = e.get("target").getZoom();
