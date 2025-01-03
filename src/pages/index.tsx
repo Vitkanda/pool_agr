@@ -7,16 +7,13 @@ import { RootState } from "@/store";
 import { allPools } from "@/lib/allPools";
 
 const HomePage: React.FC = () => {
-  // Подключаем фильтры из Redux store
   const { district, ageGroup, metro } = useSelector(
     (state: RootState) => state.search
   );
 
   const filteredPools = allPools.filter((pool) => {
     const matchesDistrict = district ? pool.district === district : true;
-    const matchesAgeGroup = ageGroup
-      ? pool.ageGroups.includes(ageGroup) 
-      : true;
+    const matchesAgeGroup = ageGroup ? pool.ageGroups.includes(ageGroup) : true;
     const matchesMetro = metro ? pool.metroStation === metro : true;
     return matchesDistrict && matchesAgeGroup && matchesMetro;
   });

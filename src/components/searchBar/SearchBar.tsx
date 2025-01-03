@@ -65,17 +65,12 @@ const SearchBar: React.FC = () => {
           sx={{
             fontWeight: 700,
             fontSize: { xs: "2rem", md: "3rem" },
-            color: theme.palette.text.primary,
+            color: "#ffffff",
           }}
         >
           Все детские бассейны Москвы в одном месте
         </Typography>
-        <Typography
-          variant="h6"
-          align="center"
-          color="text.secondary"
-          sx={{ mb: 4 }}
-        >
+        <Typography variant="h6" align="center" color="#ffffff" sx={{ mb: 4 }}>
           Выберите бассейн для занятий рядом с домом
         </Typography>
 
