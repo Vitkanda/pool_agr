@@ -1,14 +1,31 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { allPools } from "@/lib/allPools"; // Импортируем массив всех бассейнов
-import { Box, Typography, Card, CardContent, CardMedia } from "@mui/material";
+import { allPools } from "@/lib/allPools";
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardMedia,
+  Stack,
+  Paper,
+  Breadcrumbs,
+  Link,
+  Rating,
+  Chip,
+  Container,
+} from "@mui/material";
 import Image from "next/image";
+import PoolMap from "@/slices/map/Map";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import PhoneIcon from "@mui/icons-material/Phone";
+import LanguageIcon from "@mui/icons-material/Language";
 
 const PoolPage: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query; // Получаем id из маршрута
+  const { id } = router.query;
 
-  // Находим бассейн по id
   const pool = allPools.find((p) => p.id === id);
 
   if (!pool) {
@@ -16,42 +33,202 @@ const PoolPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 800, margin: "0 auto", p: 4 }}>
-      <Card sx={{ boxShadow: 3 }}>
-        <CardMedia>
-          <Image
-            src={pool.images[0]}
-            alt={pool.name}
-            width={800}
-            height={400}
-            style={{ objectFit: "cover" }}
-          />
-        </CardMedia>
-        <CardContent>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
-            {pool.name}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-            Район: {pool.district}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-            Метро: {pool.metroStation}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-            Адрес: {pool.address}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-            График: {pool.schedule}
-          </Typography>
-          <Typography variant="body1" color="primary" sx={{ fontWeight: 500 }}>
-            Рейтинг: {pool.rating} ★
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            {pool.description}
-          </Typography>
-        </CardContent>
-      </Card>
-    </Box>
+    <Container maxWidth="xl">
+      <Box sx={{ color: "white", py: 2, px: 3, mb: 3 }}>
+        <Typography variant="h6">
+          Выберите идеальный бассейн для вашего ребенка!
+        </Typography>
+      </Box>
+
+      <Breadcrumbs
+        separator={<NavigateNextIcon fontSize="small" />}
+        sx={{ mb: 3 }}
+      >
+        <Link href="/" color="inherit" underline="hover">
+          Главная
+        </Link>
+        <Link href="/pools" color="inherit" underline="hover">
+          Бассейны
+        </Link>
+        <Typography color="text.primary">{pool.name}</Typography>
+      </Breadcrumbs>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 4,
+          alignItems: "stretch",
+        }}
+      >
+ ё
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between", 
+          }}
+        >
+          <Paper
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              mb: 3,
+            }}
+          >
+            <PoolMap
+              locations={[
+                {
+                  id: pool.id,
+                  name: pool.name,
+                  coordinates: pool.coordinates,
+                },
+              ]}
+              sx={{
+                width: "100%",
+                flex: 1,
+                borderRadius: "12px",
+              }}
+            />
+          </Paper>
+          <Paper sx={{ p: 3 }}>
+            {" "}
+            {/* Убрал mb: 3, так как это последний элемент */}
+            <Typography variant="body1" sx={{  }}>
+              {pool.address}
+            </Typography>
+          </Paper>
+        </Box>
+
+        {/* Правая колонка с информацией */}
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h4" component="h1" sx={{ color: "blue" }}>
+                {pool.name}
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Rating value={pool.rating} readOnly precision={0.1} />
+                <Typography variant="h4">{pool.rating}</Typography>
+              </Box>
+            </Box>
+
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              sx={{ mb: 3 }}
+            >
+              {pool.metroStation} {"•"} {pool.address}
+            </Typography>
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 1,
+              }}
+            >
+              <Typography variant="h5">Пробное занятие</Typography>
+              <Typography variant="h5">{pool.priceRange.trial} ₽</Typography>
+            </Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 2, display: "block" }}
+            >
+              При покупке абонемента – в подарок!
+            </Typography>
+            <Button variant="contained" fullWidth size="large">
+              Записаться на пробное
+            </Button>
+          </Paper>
+
+          <Paper sx={{ p: 3, mb: 3 }}>
+            {pool.services && pool.services.length > 0 ? (
+              <Stack direction="row" flexWrap="wrap" gap={1}>
+                {pool.services.map((service, index) => (
+                  <Chip key={index} label={service} />
+                ))}
+              </Stack>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Информация о доступных услугах отсутствует.
+              </Typography>
+            )}
+          </Paper>
+
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="body1">{pool.description}</Typography>
+          </Paper>
+
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="contained"
+              startIcon={<WhatsAppIcon />}
+              sx={{ flex: 1 }}
+            >
+              Написать
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<PhoneIcon />}
+              sx={{ flex: 1 }}
+            >
+              Позвонить
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<LanguageIcon />}
+              sx={{ flex: 1 }}
+            >
+              На сайт
+            </Button>
+          </Stack>
+        </Box>
+      </Box>
+
+      {/* Галерея */}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5" sx={{ mb: 3 }}>
+          Занятия в &quot;{pool.name}&quot;
+        </Typography>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            overflowX: "auto",
+            pb: 2,
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-track": { bgcolor: "#f1f1f1" },
+            "&::-webkit-scrollbar-thumb": { bgcolor: "#888", borderRadius: 4 },
+          }}
+        >
+          {pool.images.map((image, index) => (
+            <Card key={index} sx={{ minWidth: 280, bgcolor: "#f5f5f5" }}>
+              <CardMedia>
+                <Image
+                  src={image}
+                  alt={`Фото ${index + 1}`}
+                  width={280}
+                  height={200}
+                  style={{ objectFit: "cover" }}
+                />
+              </CardMedia>
+            </Card>
+          ))}
+        </Stack>
+      </Box>
+    </Container>
   );
 };
 

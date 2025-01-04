@@ -9,17 +9,19 @@ export interface Pool {
   name: string;
   coordinates: [number, number];
   district: string;
-  metroStation: string;
+  metroStation: string[];
   address: string;
   ageGroups: string[];
   priceRange: {
     individual: number;
-    group: number;
+    group?: number;
     trial?: number;
   };
+  services?: string[];
   description: string;
   images: string[];
   schedule: string;
   rating: number;
   reviews: Review[];
+
 }

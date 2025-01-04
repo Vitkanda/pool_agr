@@ -14,7 +14,9 @@ const HomePage: React.FC = () => {
   const filteredPools = allPools.filter((pool) => {
     const matchesDistrict = district ? pool.district === district : true;
     const matchesAgeGroup = ageGroup ? pool.ageGroups.includes(ageGroup) : true;
-    const matchesMetro = metro ? pool.metroStation === metro : true;
+    // const matchesMetro = metro ? pool.metroStation === metro : true;
+    const matchesMetro = metro ? pool.metroStation.includes(metro) : true;
+
     return matchesDistrict && matchesAgeGroup && matchesMetro;
   });
 
@@ -36,7 +38,10 @@ const HomePage: React.FC = () => {
             justifyContent: "center",
           }}
         >
-          <PoolMap locations={filteredPools} />
+          <PoolMap
+            locations={filteredPools}
+            sx={{ width: "80%", height: "600px", borderRadius: "12px" }}
+          />
         </div>
       </section>
     </div>

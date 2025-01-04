@@ -1,4 +1,4 @@
-// src/slices/map/Map.tsx
+
 
 import React from "react";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
@@ -12,10 +12,6 @@ interface PoolLocation {
   coordinates: [number, number];
 }
 
-interface MapProps {
-  locations: PoolLocation[];
-}
-
 interface YandexBoundsChangeEvent {
   get: (key: string) => {
     getCenter: () => [number, number];
@@ -23,7 +19,20 @@ interface YandexBoundsChangeEvent {
   };
 }
 
-const PoolMap: React.FC<MapProps> = ({ locations }) => {
+interface MapProps {
+  locations: PoolLocation[];
+  sx?: React.CSSProperties;
+}
+
+const PoolMap: React.FC<MapProps> = ({
+  locations,
+  sx = {
+    width: "100%",
+    height: "400px",
+    borderRadius: "16px",
+    overflow: "hidden",
+  },
+}) => {
   const dispatch = useDispatch();
   const center = useSelector((state: RootState) => state.map.center);
   const zoom = useSelector((state: RootState) => state.map.zoom);
@@ -35,24 +44,41 @@ const PoolMap: React.FC<MapProps> = ({ locations }) => {
 
   return (
     <YMaps query={{ apikey: "4db7472d-2936-422d-9f44-ff9da9481d65" }}>
-      <Map
-        defaultState={{ center, zoom }}
-        width="80%"
-        height="600px"
-        onBoundsChange={(e: YandexBoundsChangeEvent) => {
-          const newCenter = e.get("target").getCenter();
-          const newZoom = e.get("target").getZoom();
-          handleMapChange(newCenter as [number, number], newZoom);
+      <div
+        style={{
+          ...sx,
+          position: "relative",
+          borderRadius: sx.borderRadius || "16px",
+          overflow: "hidden",
         }}
       >
-        {locations.map((location) => (
-          <Placemark
-            key={location.id}
-            geometry={location.coordinates}
-            properties={{ balloonContent: location.name }}
-          />
-        ))}
-      </Map>
+        <Map
+          defaultState={{ center, zoom }}
+          width="100%"
+          height="100%"
+          options={{
+            suppressMapOpenBlock: true, // Убирает кнопку открытия карты в новом окне
+          }}
+          onBoundsChange={(e: YandexBoundsChangeEvent) => {
+            const newCenter = e.get("target").getCenter();
+            const newZoom = e.get("target").getZoom();
+            handleMapChange(newCenter as [number, number], newZoom);
+          }}
+        >
+          {locations.map((location) => (
+            <Placemark
+              key={location.id}
+              geometry={location.coordinates}
+              properties={{ balloonContent: location.name }}
+            />
+          ))}
+        </Map>
+        <style jsx global>{`
+          .ymaps-2-1-79-map {
+            border-radius: ${sx.borderRadius || "16px"} !important;
+          }
+        `}</style>
+      </div>
     </YMaps>
   );
 };
