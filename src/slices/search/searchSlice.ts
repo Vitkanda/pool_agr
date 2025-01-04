@@ -4,13 +4,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface SearchState {
     district: string;
     ageGroup: string;
-    metro: string; // Новое поле для станции метро
+    metro: string; 
 }
 
 const initialState: SearchState = {
     district: '',
     ageGroup: '',
-    metro: '', // По умолчанию пустое значение
+    metro: '', 
 };
 
 const searchSlice = createSlice({
@@ -23,10 +23,10 @@ const searchSlice = createSlice({
         setAgeGroup: (state, action: PayloadAction<string>) => {
             state.ageGroup = action.payload;
         },
-        setMetro: (state, action: PayloadAction<string>) => { // Новый редьюсер для установки метро
+        setMetro: (state, action: PayloadAction<string>) => { 
             state.metro = action.payload;
         },
-        resetFilters: (state) => { // Сбрасывает все фильтры
+        resetFilters: (state) => { 
             state.district = '';
             state.ageGroup = '';
             state.metro = '';

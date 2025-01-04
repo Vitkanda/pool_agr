@@ -29,7 +29,7 @@ const HomePage: React.FC = () => {
         <PoolCards pools={filteredPools} />
       </section> */}
       <section style={{ height: "100vh", padding: "20px", color: "#fff" }}>
-        <h2>Третья секция</h2>
+        {/* <h2>Третья секция</h2> */}
         <div
           style={{
             display: "flex",
