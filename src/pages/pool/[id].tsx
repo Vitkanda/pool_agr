@@ -32,10 +32,12 @@ const PoolPage: React.FC = () => {
     return <Typography variant="h4">Бассейн не найден</Typography>;
   }
 
+  console.log("pool===========>>>>>>", pool);
+
   return (
     <Container maxWidth="xl">
       <Box sx={{ color: "white", py: 2, px: 3, mb: 3 }}>
-        <Typography variant="h6">
+        <Typography variant="h3">
           Выберите идеальный бассейн для вашего ребенка!
         </Typography>
       </Box>
@@ -50,7 +52,9 @@ const PoolPage: React.FC = () => {
         <Link href="/pools" color="inherit" underline="hover">
           Бассейны
         </Link>
-        <Typography color="text.primary">{pool.name}</Typography>
+        <Typography color="text.primary">
+          {pool.properties.CompanyMetaData.name}
+        </Typography>
       </Breadcrumbs>
 
       <Box
@@ -61,13 +65,12 @@ const PoolPage: React.FC = () => {
           alignItems: "stretch",
         }}
       >
- ё
         <Box
           sx={{
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between", 
+            justifyContent: "space-between",
           }}
         >
           <Paper
@@ -82,8 +85,8 @@ const PoolPage: React.FC = () => {
               locations={[
                 {
                   id: pool.id,
-                  name: pool.name,
-                  coordinates: pool.coordinates,
+                  name: pool.properties.CompanyMetaData.name,
+                  coordinates: pool.geometry.coordinates,
                 },
               ]}
               sx={{
@@ -94,10 +97,8 @@ const PoolPage: React.FC = () => {
             />
           </Paper>
           <Paper sx={{ p: 3 }}>
-            {" "}
-            {/* Убрал mb: 3, так как это последний элемент */}
-            <Typography variant="body1" sx={{  }}>
-              {pool.address}
+            <Typography variant="body1">
+              {pool.properties.CompanyMetaData.address}
             </Typography>
           </Paper>
         </Box>
@@ -114,11 +115,17 @@ const PoolPage: React.FC = () => {
               }}
             >
               <Typography variant="h4" component="h1" sx={{ color: "blue" }}>
-                {pool.name}
+                {pool.properties.CompanyMetaData.name}
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Rating value={pool.rating} readOnly precision={0.1} />
-                <Typography variant="h4">{pool.rating}</Typography>
+                <Rating
+                  value={pool.properties.CompanyMetaData.rating}
+                  readOnly
+                  precision={0.1}
+                />
+                <Typography variant="h4">
+                  {pool.properties.CompanyMetaData.rating}
+                </Typography>
               </Box>
             </Box>
 
@@ -127,7 +134,12 @@ const PoolPage: React.FC = () => {
               color="text.secondary"
               sx={{ mb: 3 }}
             >
-              {pool.metroStation} {"•"} {pool.address}
+              Метро:{" "}
+              {pool.metroStations && pool.metroStations.length > 0
+                ? pool.metroStations
+                    .map((station) => `${station.name} (${station.distance})`)
+                    .join(", ")
+                : "Нет данных"}
             </Typography>
 
             <Box
@@ -139,7 +151,11 @@ const PoolPage: React.FC = () => {
               }}
             >
               <Typography variant="h5">Пробное занятие</Typography>
-              <Typography variant="h5">{pool.priceRange.trial} ₽</Typography>
+              <Typography variant="h5">
+                {pool.priceRange.trial
+                  ? `${pool.priceRange.trial} ₽`
+                  : "Нет данных"}
+              </Typography>
             </Box>
             <Typography
               variant="caption"
@@ -168,7 +184,9 @@ const PoolPage: React.FC = () => {
           </Paper>
 
           <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="body1">{pool.description}</Typography>
+            <Typography variant="body1">
+              {pool.properties.description}
+            </Typography>
           </Paper>
 
           <Stack direction="row" spacing={2}>
@@ -184,7 +202,8 @@ const PoolPage: React.FC = () => {
               startIcon={<PhoneIcon />}
               sx={{ flex: 1 }}
             >
-              Позвонить
+              {pool.properties.CompanyMetaData.Phones?.[0]?.formatted ||
+                "Позвонить"}
             </Button>
             <Button
               variant="contained"
@@ -200,7 +219,7 @@ const PoolPage: React.FC = () => {
       {/* Галерея */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h5" sx={{ mb: 3 }}>
-          Занятия в &quot;{pool.name}&quot;
+          Занятия в &quot;{pool.properties.CompanyMetaData.name}&quot;
         </Typography>
         <Stack
           direction="row"

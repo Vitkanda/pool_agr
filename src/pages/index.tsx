@@ -12,10 +12,23 @@ const HomePage: React.FC = () => {
   );
 
   const filteredPools = allPools.filter((pool) => {
-    const matchesDistrict = district ? pool.district === district : true;
-    const matchesAgeGroup = ageGroup ? pool.ageGroups.includes(ageGroup) : true;
-    // const matchesMetro = metro ? pool.metroStation === metro : true;
-    const matchesMetro = metro ? pool.metroStation.includes(metro) : true;
+    const matchesDistrict = district
+      ? pool.properties.CompanyMetaData.Categories.some((category) =>
+          category.name.toLowerCase().includes(district.toLowerCase())
+        )
+      : true;
+
+    const matchesAgeGroup = ageGroup
+      ? pool.services?.some((service) =>
+          service.toLowerCase().includes(ageGroup.toLowerCase())
+        )
+      : true;
+
+    const matchesMetro = metro
+      ? pool.metroStations?.some((station) =>
+          station.name.toLowerCase().includes(metro.toLowerCase())
+        )
+      : true;
 
     return matchesDistrict && matchesAgeGroup && matchesMetro;
   });
@@ -26,12 +39,8 @@ const HomePage: React.FC = () => {
         <SearchBar />
         <PoolCards pools={filteredPools} />
       </section>
-      {/* <section style={{ height: "100vh", padding: "20px", color: "#fff" }}>
-        <h2>Вторая секция</h2>
-        <PoolCards pools={filteredPools} />
-      </section> */}
+
       <section style={{ height: "100vh", padding: "20px", color: "#fff" }}>
-        {/* <h2>Третья секция</h2> */}
         <div
           style={{
             display: "flex",
@@ -39,7 +48,11 @@ const HomePage: React.FC = () => {
           }}
         >
           <PoolMap
-            locations={filteredPools}
+            locations={filteredPools.map((pool) => ({
+              id: pool.id,
+              name: pool.properties.CompanyMetaData.name,
+              coordinates: pool.geometry.coordinates,
+            }))}
             sx={{ width: "80%", height: "600px", borderRadius: "12px" }}
           />
         </div>
