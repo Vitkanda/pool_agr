@@ -5,8 +5,8 @@ import {
   Box,
   Typography,
   Button,
-  Card,
-  CardMedia,
+  // Card,
+  // CardMedia,
   Stack,
   Paper,
   Breadcrumbs,
@@ -15,12 +15,13 @@ import {
   Chip,
   Container,
 } from "@mui/material";
-import Image from "next/image";
+// import Image from "next/image";
 import PoolMap from "@/slices/map/Map";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LanguageIcon from "@mui/icons-material/Language";
+import PoolGallery from "@/components/poolGallery/PoolGallery";
 
 const PoolPage: React.FC = () => {
   const router = useRouter();
@@ -217,43 +218,8 @@ const PoolPage: React.FC = () => {
       </Box>
 
       {/* Галерея */}
-      {/* <Box sx={{ mt: 4, display: 'flex', alignContent: 'center' }} >
-        <Typography variant="h4" sx={{ mb: 3, color: 'white' }}>
-          Занятия в &quot;{pool.properties.CompanyMetaData.name}&quot;
-        </Typography>
- 
-
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            overflowX: "auto",
-            pb: 2,
-            "&::-webkit-scrollbar": { height: 8 },
-            "&::-webkit-scrollbar-track": { bgcolor: "#f1f1f1" },
-            "&::-webkit-scrollbar-thumb": { bgcolor: "#888", borderRadius: 4 },
-          }}
-        >
-          {pool.images.map((image, index) => (
-            <Card key={index} sx={{ minWidth: 280, bgcolor: "#f5f5f5" }}>
-              <CardMedia>
-                <Image
-                  src={image}
-                  alt={`Фото ${index + 1}`}
-                  width={280}
-                  height={200}
-                  style={{ objectFit: "cover" }}
-                />
-              </CardMedia>
-            </Card>
-          ))}
-        </Stack>
-      </Box> */}
-
-
-          {/* Галерея */}
-          <Box sx={{ mt: 4, textAlign: "center" }}>
-        <Typography variant="h4" sx={{ mb: 3, color: 'white' }}>
+      {/* <Box sx={{ mt: 4, textAlign: "center" }}>
+        <Typography variant="h4" sx={{ mb: 3, color: "white" }}>
           Занятия в &quot;{pool.properties.CompanyMetaData.name}&quot;
         </Typography>
 
@@ -284,12 +250,21 @@ const PoolPage: React.FC = () => {
                   alt={`Фото ${index + 1}`}
                   width={280}
                   height={200}
-                  style={{ objectFit: "cover" }}
+                  style={{
+                    objectFit: "cover",
+                    display: "block",
+                  }}
                 />
               </CardMedia>
             </Card>
           ))}
         </Stack>
+      </Box> */}
+      <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+        <PoolGallery
+          images={pool.images}
+          title={pool.properties.CompanyMetaData.name}
+        />
       </Box>
     </Container>
   );
