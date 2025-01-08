@@ -5,7 +5,7 @@ export const allPools: Pool[] = [
     id: "1",
     name: "Академия",
     geometry: {
-      coordinates: [37.54356, 55.66076],
+      coordinates: [55.66076, 37.54356],
     },
     properties: {
       CompanyMetaData: {
@@ -14,7 +14,7 @@ export const allPools: Pool[] = [
         Phones: [
           {
             type: "phone",
-            formatted: "+7 123 456 78 90",
+            formatted: "+7 (495) 500-63-64",
           },
         ],
         url: "https://academy.ru",
@@ -35,7 +35,12 @@ export const allPools: Pool[] = [
         "«Академия плавания» — это бассейн, который специализируется на занятиях плаванием для детей всех возрастов.",
     },
     services: ["Индивидуальные занятия", "Групповые занятия", "Аква-йога"],
-    images: ["/images/akademy.webp"],
+    // images: ["/images/akademy.webp"],
+    images: [
+      "https://storage.yandexcloud.net/pools-photos/akademy/large-194.jpg",
+      "https://storage.yandexcloud.net/pools-photos/akademy/large-196.jpg",
+      "https://storage.yandexcloud.net/pools-photos/akademy/large-203.jpg",
+    ],
     priceRange: { individual: 1500, group: 1000, trial: 800 },
     metroStations: [
       {

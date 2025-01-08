@@ -32,7 +32,7 @@ const PoolPage: React.FC = () => {
     return <Typography variant="h4">Бассейн не найден</Typography>;
   }
 
-  console.log("pool===========>>>>>>", pool);
+  // console.log("pool===========>>>>>>", pool);
 
   return (
     <Container maxWidth="xl">
@@ -217,10 +217,12 @@ const PoolPage: React.FC = () => {
       </Box>
 
       {/* Галерея */}
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" sx={{ mb: 3 }}>
+      {/* <Box sx={{ mt: 4, display: 'flex', alignContent: 'center' }} >
+        <Typography variant="h4" sx={{ mb: 3, color: 'white' }}>
           Занятия в &quot;{pool.properties.CompanyMetaData.name}&quot;
         </Typography>
+ 
+
         <Stack
           direction="row"
           spacing={2}
@@ -234,6 +236,48 @@ const PoolPage: React.FC = () => {
         >
           {pool.images.map((image, index) => (
             <Card key={index} sx={{ minWidth: 280, bgcolor: "#f5f5f5" }}>
+              <CardMedia>
+                <Image
+                  src={image}
+                  alt={`Фото ${index + 1}`}
+                  width={280}
+                  height={200}
+                  style={{ objectFit: "cover" }}
+                />
+              </CardMedia>
+            </Card>
+          ))}
+        </Stack>
+      </Box> */}
+
+
+          {/* Галерея */}
+          <Box sx={{ mt: 4, textAlign: "center" }}>
+        <Typography variant="h4" sx={{ mb: 3, color: 'white' }}>
+          Занятия в &quot;{pool.properties.CompanyMetaData.name}&quot;
+        </Typography>
+
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="center" // Центрирование элементов
+          sx={{
+            overflowX: "auto",
+            pb: 2,
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-track": { bgcolor: "#f1f1f1" },
+            "&::-webkit-scrollbar-thumb": { bgcolor: "#888", borderRadius: 4 },
+          }}
+        >
+          {pool.images.map((image, index) => (
+            <Card
+              key={index}
+              sx={{
+                minWidth: 280,
+                bgcolor: "#f5f5f5",
+                mx: "auto", // Центрирование карточек
+              }}
+            >
               <CardMedia>
                 <Image
                   src={image}
