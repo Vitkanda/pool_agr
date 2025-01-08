@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import SearchBar from "@/components/searchBar/SearchBar";
 import PoolCards from "@/components/poolCards/PoolCards";
@@ -7,7 +5,8 @@ import PoolMap from "@/slices/map/Map";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { allPools } from "@/lib/allPools";
-import "@/pages/styles/styles.css";
+// import "@/pages/styles/styles.css";
+// import "../pages";
 
 const HomePage: React.FC = () => {
   const { district, ageGroup, metro } = useSelector(
