@@ -1,8 +1,8 @@
 import React from "react";
 import { useRouter } from "next/router";
 import { Box, Typography, Card, CardMedia, CardContent } from "@mui/material";
-import Carousel from "react-material-ui-carousel";
 import Image from "next/image";
+import Carousel from "react-material-ui-carousel";
 import { Pool } from "@/types/poolsTypes";
 
 interface PoolCardsProps {
@@ -19,7 +19,7 @@ const PoolCards: React.FC<PoolCardsProps> = ({ pools }) => {
       return acc;
     }, []);
 
-  const poolChunks = chunkPools(pools, 3); // Разбиваем по 3 бассейна
+  const poolChunks = chunkPools(pools, 3); // Разбиваем на чанки по 3 бассейна
 
   return (
     <Box sx={{ my: 4 }}>
@@ -31,6 +31,7 @@ const PoolCards: React.FC<PoolCardsProps> = ({ pools }) => {
       >
         Наши бассейны
       </Typography>
+
       <Carousel
         autoPlay={true}
         indicators={true}
@@ -46,19 +47,33 @@ const PoolCards: React.FC<PoolCardsProps> = ({ pools }) => {
               justifyContent: "center",
               gap: 2,
               px: 2,
+              flexWrap: "nowrap", // Предотвращаем перенос карточек
+              overflow: "hidden",
             }}
           >
             {chunk.map((pool) => (
               <Card
                 key={pool.id}
                 sx={{
-                  maxWidth: 400,
+                  flex: "0 0 calc(33.333% - 16px)", // Три карточки в строке
+                  maxWidth: "400px",
+                  minWidth: "300px",
                   boxShadow: 3,
                   borderRadius: 2,
                   overflow: "hidden",
-                  cursor: "pointer", // Указатель при наведении
+                  cursor: "pointer",
+                  transition: "transform 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-5px)", // Подъем карточки при наведении
+                  },
+                  "@media (max-width: 900px)": {
+                    flex: "0 0 calc(50% - 16px)", // Две карточки в строке
+                  },
+                  "@media (max-width: 600px)": {
+                    flex: "0 0 100%", // Одна карточка в строке
+                  },
                 }}
-                onClick={() => router.push(`/pool/${pool.id}`)} // Переход по клику
+                onClick={() => router.push(`/pool/${pool.id}`)}
               >
                 <CardMedia>
                   <Image
@@ -77,7 +92,14 @@ const PoolCards: React.FC<PoolCardsProps> = ({ pools }) => {
                     Адрес: {pool.properties.CompanyMetaData.address}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Метро: {pool.metroStations && pool.metroStations.join(", ")}
+                    Метро:{" "}
+                    {pool.metroStations
+                      ? pool.metroStations
+                          .map(
+                            (station) => `${station.name} (${station.distance})`
+                          )
+                          .join(", ")
+                      : "Нет данных"}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Цена: Индивидуально - {pool.priceRange.individual}₽

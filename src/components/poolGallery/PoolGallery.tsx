@@ -28,14 +28,19 @@ const PoolGallery: React.FC<PoolGalleryProps> = ({ images, title }) => {
         width: "100%",
         mt: 4,
         pb: 4,
-        // bgcolor: "rgba(0, 0, 0, 0.6)",
         borderRadius: "12px",
         overflow: "hidden",
       }}
     >
       <Typography
         variant="h4"
-        sx={{ mb: 3, color: "white", textAlign: "center", pt: 2 }}
+        sx={{
+          mb: 3,
+          color: "white",
+          textAlign: "center",
+          pt: 2,
+          fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" },
+        }}
       >
         Занятия в &quot;{title}&quot;
       </Typography>
@@ -54,7 +59,7 @@ const PoolGallery: React.FC<PoolGalleryProps> = ({ images, title }) => {
           onClick={handlePrev}
           sx={{
             position: "absolute",
-            left: 10,
+            left: { xs: 5, sm: 10 },
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 1,
@@ -62,7 +67,9 @@ const PoolGallery: React.FC<PoolGalleryProps> = ({ images, title }) => {
             "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.9)" },
           }}
         >
-          <ArrowBackIos sx={{ color: "black" }} />
+          <ArrowBackIos
+            sx={{ color: "black", fontSize: { xs: "1rem", sm: "1.5rem" } }}
+          />
         </IconButton>
 
         {/* Основное изображение */}
@@ -72,7 +79,7 @@ const PoolGallery: React.FC<PoolGalleryProps> = ({ images, title }) => {
             justifyContent: "center",
             alignItems: "center",
             width: "100%",
-            height: { xs: "300px", sm: "400px", md: "500px" },
+            height: { xs: "200px", sm: "300px", md: "400px" },
             position: "relative",
             overflow: "hidden",
             borderRadius: "12px",
@@ -92,7 +99,7 @@ const PoolGallery: React.FC<PoolGalleryProps> = ({ images, title }) => {
           onClick={handleNext}
           sx={{
             position: "absolute",
-            right: 10,
+            right: { xs: 5, sm: 10 },
             top: "50%",
             transform: "translateY(-50%)",
             zIndex: 1,
@@ -100,7 +107,9 @@ const PoolGallery: React.FC<PoolGalleryProps> = ({ images, title }) => {
             "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.9)" },
           }}
         >
-          <ArrowForwardIos sx={{ color: "black" }} />
+          <ArrowForwardIos
+            sx={{ color: "black", fontSize: { xs: "1rem", sm: "1.5rem" } }}
+          />
         </IconButton>
       </Box>
 
@@ -142,8 +151,8 @@ const PoolGallery: React.FC<PoolGalleryProps> = ({ images, title }) => {
           >
             <CardMedia
               sx={{
-                width: 80,
-                height: 80,
+                width: { xs: 60, sm: 80 },
+                height: { xs: 60, sm: 80 },
               }}
             >
               <Image

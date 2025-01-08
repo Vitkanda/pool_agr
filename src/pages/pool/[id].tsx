@@ -5,8 +5,6 @@ import {
   Box,
   Typography,
   Button,
-  // Card,
-  // CardMedia,
   Stack,
   Paper,
   Breadcrumbs,
@@ -15,7 +13,6 @@ import {
   Chip,
   Container,
 } from "@mui/material";
-// import Image from "next/image";
 import PoolMap from "@/slices/map/Map";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -30,22 +27,31 @@ const PoolPage: React.FC = () => {
   const pool = allPools.find((p) => p.id === id);
 
   if (!pool) {
-    return <Typography variant="h4">Бассейн не найден</Typography>;
+    return (
+      <Container maxWidth="xl" sx={{ py: 5 }}>
+        <Typography variant="h4" textAlign="center" color="error">
+          Бассейн не найден
+        </Typography>
+      </Container>
+    );
   }
 
-  // console.log("pool===========>>>>>>", pool);
-
   return (
-    <Container maxWidth="xl">
-      <Box sx={{ color: "white", py: 2, px: 3, mb: 3 }}>
-        <Typography variant="h3">
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box sx={{ color: "white", py: 2, px: 3, mb: 3, textAlign: "center" }}>
+        <Typography
+          variant="h3"
+          sx={{ fontSize: { xs: "1.8rem", md: "2.5rem" } }}
+        >
           Выберите идеальный бассейн для вашего ребенка!
         </Typography>
       </Box>
 
+      {/* Breadcrumbs */}
       <Breadcrumbs
         separator={<NavigateNextIcon fontSize="small" />}
-        sx={{ mb: 3 }}
+        sx={{ mb: 3, fontSize: { xs: "0.9rem", md: "1rem" } }}
       >
         <Link href="/" color="inherit" underline="hover">
           Главная
@@ -58,6 +64,7 @@ const PoolPage: React.FC = () => {
         </Typography>
       </Breadcrumbs>
 
+      {/* Main Content */}
       <Box
         sx={{
           display: "flex",
@@ -66,6 +73,7 @@ const PoolPage: React.FC = () => {
           alignItems: "stretch",
         }}
       >
+        {/* Left Column */}
         <Box
           sx={{
             flex: 1,
@@ -80,31 +88,39 @@ const PoolPage: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               mb: 3,
+              borderRadius: "12px",
+              overflow: "hidden",
             }}
           >
-            <PoolMap
-              locations={[
-                {
-                  id: pool.id,
-                  name: pool.properties.CompanyMetaData.name,
-                  coordinates: pool.geometry.coordinates,
-                },
-              ]}
+            <Box
               sx={{
                 width: "100%",
-                flex: 1,
-                borderRadius: "12px",
+                height: { xs: "300px", sm: "400px", md: "500px" },
               }}
-            />
+            >
+              <PoolMap
+                locations={[
+                  {
+                    id: pool.id,
+                    name: pool.properties.CompanyMetaData.name,
+                    coordinates: pool.geometry.coordinates,
+                  },
+                ]}
+                sx={{ width: "100%", height: "100%" }}
+              />
+            </Box>
           </Paper>
           <Paper sx={{ p: 3 }}>
-            <Typography variant="body1">
+            <Typography
+              variant="body1"
+              sx={{ fontSize: { xs: "0.9rem", md: "1rem" } }}
+            >
               {pool.properties.CompanyMetaData.address}
             </Typography>
           </Paper>
         </Box>
 
-        {/* Правая колонка с информацией */}
+        {/* Right Column */}
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <Paper sx={{ p: 3, mb: 3 }}>
             <Box
@@ -115,7 +131,14 @@ const PoolPage: React.FC = () => {
                 mb: 2,
               }}
             >
-              <Typography variant="h4" component="h1" sx={{ color: "blue" }}>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  color: "blue",
+                  fontSize: { xs: "1.5rem", md: "2rem" },
+                }}
+              >
                 {pool.properties.CompanyMetaData.name}
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -124,7 +147,10 @@ const PoolPage: React.FC = () => {
                   readOnly
                   precision={0.1}
                 />
-                <Typography variant="h4">
+                <Typography
+                  variant="h4"
+                  sx={{ fontSize: { xs: "1.2rem", md: "1.5rem" } }}
+                >
                   {pool.properties.CompanyMetaData.rating}
                 </Typography>
               </Box>
@@ -133,7 +159,7 @@ const PoolPage: React.FC = () => {
             <Typography
               variant="subtitle1"
               color="text.secondary"
-              sx={{ mb: 3 }}
+              sx={{ mb: 3, fontSize: { xs: "0.9rem", md: "1rem" } }}
             >
               Метро:{" "}
               {pool.metroStations && pool.metroStations.length > 0
@@ -151,8 +177,16 @@ const PoolPage: React.FC = () => {
                 mb: 1,
               }}
             >
-              <Typography variant="h5">Пробное занятие</Typography>
-              <Typography variant="h5">
+              <Typography
+                variant="h5"
+                sx={{ fontSize: { xs: "1rem", md: "1.3rem" } }}
+              >
+                Пробное занятие
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{ fontSize: { xs: "1rem", md: "1.3rem" } }}
+              >
                 {pool.priceRange.trial
                   ? `${pool.priceRange.trial} ₽`
                   : "Нет данных"}
@@ -165,7 +199,12 @@ const PoolPage: React.FC = () => {
             >
               При покупке абонемента – в подарок!
             </Typography>
-            <Button variant="contained" fullWidth size="large">
+            <Button
+              variant="contained"
+              fullWidth
+              size="large"
+              sx={{ fontSize: { xs: "0.8rem", md: "1rem" } }}
+            >
               Записаться на пробное
             </Button>
           </Paper>
@@ -174,18 +213,29 @@ const PoolPage: React.FC = () => {
             {pool.services && pool.services.length > 0 ? (
               <Stack direction="row" flexWrap="wrap" gap={1}>
                 {pool.services.map((service, index) => (
-                  <Chip key={index} label={service} />
+                  <Chip
+                    key={index}
+                    label={service}
+                    sx={{ fontSize: { xs: "0.7rem", md: "0.9rem" } }}
+                  />
                 ))}
               </Stack>
             ) : (
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: { xs: "0.8rem", md: "1rem" } }}
+              >
                 Информация о доступных услугах отсутствует.
               </Typography>
             )}
           </Paper>
 
           <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="body1">
+            <Typography
+              variant="body1"
+              sx={{ fontSize: { xs: "0.9rem", md: "1rem" } }}
+            >
               {pool.properties.description}
             </Typography>
           </Paper>
@@ -194,14 +244,14 @@ const PoolPage: React.FC = () => {
             <Button
               variant="contained"
               startIcon={<WhatsAppIcon />}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, fontSize: { xs: "0.8rem", md: "1rem" } }}
             >
               Написать
             </Button>
             <Button
               variant="contained"
               startIcon={<PhoneIcon />}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, fontSize: { xs: "0.8rem", md: "1rem" } }}
             >
               {pool.properties.CompanyMetaData.Phones?.[0]?.formatted ||
                 "Позвонить"}
@@ -209,7 +259,7 @@ const PoolPage: React.FC = () => {
             <Button
               variant="contained"
               startIcon={<LanguageIcon />}
-              sx={{ flex: 1 }}
+              sx={{ flex: 1, fontSize: { xs: "0.8rem", md: "1rem" } }}
             >
               На сайт
             </Button>
@@ -218,48 +268,6 @@ const PoolPage: React.FC = () => {
       </Box>
 
       {/* Галерея */}
-      {/* <Box sx={{ mt: 4, textAlign: "center" }}>
-        <Typography variant="h4" sx={{ mb: 3, color: "white" }}>
-          Занятия в &quot;{pool.properties.CompanyMetaData.name}&quot;
-        </Typography>
-
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="center" // Центрирование элементов
-          sx={{
-            overflowX: "auto",
-            pb: 2,
-            "&::-webkit-scrollbar": { height: 8 },
-            "&::-webkit-scrollbar-track": { bgcolor: "#f1f1f1" },
-            "&::-webkit-scrollbar-thumb": { bgcolor: "#888", borderRadius: 4 },
-          }}
-        >
-          {pool.images.map((image, index) => (
-            <Card
-              key={index}
-              sx={{
-                minWidth: 280,
-                bgcolor: "#f5f5f5",
-                mx: "auto", // Центрирование карточек
-              }}
-            >
-              <CardMedia>
-                <Image
-                  src={image}
-                  alt={`Фото ${index + 1}`}
-                  width={280}
-                  height={200}
-                  style={{
-                    objectFit: "cover",
-                    display: "block",
-                  }}
-                />
-              </CardMedia>
-            </Card>
-          ))}
-        </Stack>
-      </Box> */}
       <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
         <PoolGallery
           images={pool.images}

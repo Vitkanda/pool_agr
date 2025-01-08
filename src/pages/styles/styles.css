@@ -1,0 +1,45 @@
+styles.css
+.search-section {
+    padding: 20px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .map-section {
+    padding: 20px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background-color: #000; Подложка */
+  }
+  
+  .map-container {
+    width: 80%;
+    height: 600px;
+    border-radius: 12px;
+  }
+  
+  @media (max-width: 768px) {
+    .search-section,
+    .map-section {
+      padding: 10px;
+    }
+  
+    .map-container {
+      width: 100%;
+      height: 400px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .search-section {
+      flex-direction: column;
+    }
+  
+    .map-container {
+      height: 300px;
+    }
+  }

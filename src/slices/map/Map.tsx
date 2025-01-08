@@ -54,8 +54,10 @@ const PoolMap: React.FC<MapProps> = ({
       >
         <Map
           defaultState={{ center, zoom }}
-          width="100%"
-          height="100%"
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
           options={{
             suppressMapOpenBlock: true, // Убирает кнопку открытия карты в новом окне
           }}
@@ -73,11 +75,6 @@ const PoolMap: React.FC<MapProps> = ({
             />
           ))}
         </Map>
-        <style jsx global>{`
-          .ymaps-2-1-79-map {
-            border-radius: ${sx.borderRadius || "16px"} !important;
-          }
-        `}</style>
       </div>
     </YMaps>
   );

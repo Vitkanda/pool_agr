@@ -147,15 +147,14 @@ export const allPools: Pool[] = [
       description: "Научный подход к грудничковому и детскому плаванию.",
     },
     services: ["Индивидуальные занятия", "Групповые занятия"],
-    images: ["https://storage.yandexcloud.net/pools-photos/babyBoss/DSCF0180_1.jpg",
+    images: [
+      "https://storage.yandexcloud.net/pools-photos/babyBoss/DSCF0180_1.jpg",
       "https://storage.yandexcloud.net/pools-photos/babyBoss/DSCF0197_1.jpg",
       "https://storage.yandexcloud.net/pools-photos/babyBoss/DSCF0247_1.jpg",
       "https://storage.yandexcloud.net/pools-photos/babyBoss/SOK_7610.jpg",
       "https://storage.yandexcloud.net/pools-photos/babyBoss/SOK_8089.jpg",
       "https://storage.yandexcloud.net/pools-photos/babyBoss/___11.jpg",
       "https://storage.yandexcloud.net/pools-photos/babyBoss/___9.jpg",
-      
-
     ],
     priceRange: { individual: 3000, trial: 1500 },
     metroStations: [
