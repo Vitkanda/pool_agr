@@ -12,72 +12,68 @@ interface PoolCardsProps {
 const PoolCards: React.FC<PoolCardsProps> = ({ pools }) => {
   const router = useRouter();
 
-  // Функция для разделения массива на чанки
-  const chunkPools = (arr: Pool[], size: number) =>
-    arr.reduce<Pool[][]>((acc, _, i) => {
-      if (i % size === 0) acc.push(arr.slice(i, i + size));
-      return acc;
-    }, []);
-
-  const poolChunks = chunkPools(pools, 3); // Разбиваем на чанки по 3 бассейна
-
   return (
-    <Box sx={{ my: 4 }}>
+    <Box
+      sx={{
+        py: 6,
+        position: "relative",
+        zIndex: 1,
+      }}
+    >
       <Typography
         variant="h4"
         align="center"
         gutterBottom
         sx={{ fontWeight: 700, mb: 4 }}
+        color="#ffffff"
       >
         Наши бассейны
       </Typography>
 
       <Carousel
-        autoPlay={true}
+        autoPlay={false}
         indicators={true}
         animation="slide"
         navButtonsAlwaysVisible={true}
-        sx={{ maxWidth: "100%" }}
+        sx={{
+          maxWidth: "100%",
+          "& .MuiBox-root": {
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "16px",
+            justifyContent: "center",
+          },
+        }}
       >
-        {poolChunks.map((chunk, index) => (
+        {Array.from({ length: Math.ceil(pools.length / 3) }).map((_, index) => (
           <Box
             key={index}
             sx={{
               display: "flex",
+              gap: "16px",
               justifyContent: "center",
-              gap: 2,
-              px: 2,
-              flexWrap: "nowrap", // Предотвращаем перенос карточек
-              overflow: "hidden",
             }}
           >
-            {chunk.map((pool) => (
+            {pools.slice(index * 3, index * 3 + 3).map((pool) => (
               <Card
                 key={pool.id}
                 sx={{
-                  flex: "0 0 calc(33.333% - 16px)", // Три карточки в строке
+                  width: "100%",
                   maxWidth: "400px",
-                  minWidth: "300px",
                   boxShadow: 3,
                   borderRadius: 2,
                   overflow: "hidden",
                   cursor: "pointer",
                   transition: "transform 0.3s ease",
                   "&:hover": {
-                    transform: "translateY(-5px)", // Подъем карточки при наведении
-                  },
-                  "@media (max-width: 900px)": {
-                    flex: "0 0 calc(50% - 16px)", // Две карточки в строке
-                  },
-                  "@media (max-width: 600px)": {
-                    flex: "0 0 100%", // Одна карточка в строке
+                    transform: "translateY(-5px)",
                   },
                 }}
                 onClick={() => router.push(`/pool/${pool.id}`)}
               >
                 <CardMedia>
                   <Image
-                    src={pool.images[0]} // Отображение первой картинки
+                    src={pool.images[0]}
                     alt={pool.properties.CompanyMetaData.name}
                     width={400}
                     height={250}
@@ -91,14 +87,11 @@ const PoolCards: React.FC<PoolCardsProps> = ({ pools }) => {
                   <Typography variant="body2" color="text.secondary">
                     Адрес: {pool.properties.CompanyMetaData.address}
                   </Typography>
+
                   <Typography variant="body2" color="text.secondary">
                     Метро:{" "}
-                    {pool.metroStations
-                      ? pool.metroStations
-                          .map(
-                            (station) => `${station.name} (${station.distance})`
-                          )
-                          .join(", ")
+                    {pool.metroStations && pool.metroStations.length > 0
+                      ? `${pool.metroStations[0].name} (${pool.metroStations[0].distance})`
                       : "Нет данных"}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">

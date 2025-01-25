@@ -19,7 +19,6 @@ import {
   InputLabel,
   Paper,
   useTheme,
-  alpha,
   SelectChangeEvent,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -48,12 +47,10 @@ const SearchBar: React.FC = () => {
   return (
     <Box
       sx={{
-        background: `linear-gradient(to right, ${alpha(
-          theme.palette.primary.main,
-          0.05
-        )}, ${alpha(theme.palette.primary.main, 0.1)})`,
         py: 6,
         borderRadius: 2,
+        position: "relative",
+        zIndex: 1,
       }}
     >
       <Container maxWidth="lg">
@@ -171,3 +168,4 @@ const SearchBar: React.FC = () => {
 };
 
 export default SearchBar;
+
