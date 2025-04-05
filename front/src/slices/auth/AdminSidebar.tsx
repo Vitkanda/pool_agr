@@ -2,7 +2,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { AppDispatch, RootState } from "@/store";
 import { logoutUser } from "@/slices/auth/authSlice";
 import {
   Box,
@@ -25,7 +25,8 @@ import Link from "next/link";
 
 const AdminSidebar: React.FC = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
 
   const handleLogout = () => {

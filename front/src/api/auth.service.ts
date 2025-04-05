@@ -1,5 +1,6 @@
 // src/api/auth.service.ts
-import api from './api';
+import api from "./api";
+import { Pool } from "@/types/poolsTypes"; // Импортируйте тип Pool
 
 export interface LoginCredentials {
   email: string;
@@ -11,6 +12,7 @@ export interface User {
   email: string;
   name: string;
   role: string;
+  managedPools?: Pool[]; // Добавляем необязательное свойство managedPools
 }
 
 export interface AuthResponse {
@@ -20,42 +22,42 @@ export interface AuthResponse {
 
 const AuthService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/login', credentials);
-    
+    const response = await api.post<AuthResponse>("/auth/login", credentials);
+
     // Сохраняем токен и данные пользователя в localStorage
-    localStorage.setItem('token', response.data.access_token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-    
+    localStorage.setItem("token", response.data.access_token);
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+
     return response.data;
   },
-  
+
   logout: (): void => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   },
-  
+
   getCurrentUser: (): User | null => {
-    if (typeof window === 'undefined') return null;
-    
-    const userStr = localStorage.getItem('user');
+    if (typeof window === "undefined") return null;
+
+    const userStr = localStorage.getItem("user");
     if (!userStr) return null;
-    
+
     try {
       return JSON.parse(userStr) as User;
     } catch (e) {
-      console.error('Ошибка при парсинге пользователя из localStorage', e);
+      console.error("Ошибка при парсинге пользователя из localStorage", e);
       return null;
     }
   },
-  
+
   isAuthenticated: (): boolean => {
-    if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem('token');
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem("token");
   },
-  
+
   isAdmin: (): boolean => {
     const user = AuthService.getCurrentUser();
-    return user?.role === 'admin';
+    return user?.role === "admin";
   },
 };
 

@@ -68,33 +68,7 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const [pool, setPool] = useState<Partial<Pool>>({
-    name: "",
-    geometry: {
-      coordinates: [55.751244, 37.618423], // Центр Москвы по умолчанию
-    },
-    properties: {
-      CompanyMetaData: {
-        name: "",
-        address: "",
-        Phones: [{ type: "phone", formatted: "" }],
-        url: "",
-        Hours: { text: "" },
-        Categories: [{ name: "Бассейн для детей" }],
-        rating: 0,
-        reviews: [],
-      },
-      description: "",
-    },
-    services: [],
-    images: [],
-    priceRange: {
-      individual: 0,
-      group: 0,
-      trial: 0,
-    },
-    metroStations: [],
-  });
+  const [pool, setPool] = useState<Partial<Pool>>(initialPool);
 
   // Загрузка данных бассейна при редактировании
   useEffect(() => {

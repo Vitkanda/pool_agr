@@ -1,7 +1,6 @@
 // src/components/searchBar/SearchBar.tsx
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../store";
+
 import {
   setDistrict,
   setAgeGroup,
@@ -28,9 +27,15 @@ import SearchIcon from "@mui/icons-material/Search";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { metroStations } from "./metroStations";
 
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../../store";
+
 const SearchBar: React.FC = () => {
   const theme = useTheme();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+
+  const dispatch = useDispatch<AppDispatch>();
+
   const { district, ageGroup, metro, loading } = useSelector(
     (state: RootState) => state.search
   );
