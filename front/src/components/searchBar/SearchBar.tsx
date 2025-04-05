@@ -1,3 +1,4 @@
+// src/components/searchBar/SearchBar.tsx
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
@@ -6,6 +7,7 @@ import {
   setAgeGroup,
   setMetro,
   resetFilters,
+  applyFilters,
 } from "../../slices/search/searchSlice";
 import {
   Box,
@@ -20,6 +22,7 @@ import {
   Paper,
   useTheme,
   SelectChangeEvent,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -28,7 +31,7 @@ import { metroStations } from "./metroStations";
 const SearchBar: React.FC = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { district, ageGroup, metro } = useSelector(
+  const { district, ageGroup, metro, loading } = useSelector(
     (state: RootState) => state.search
   );
 
@@ -42,6 +45,10 @@ const SearchBar: React.FC = () => {
 
   const handleMetroChange = (e: SelectChangeEvent<string>) => {
     dispatch(setMetro(e.target.value as string));
+  };
+
+  const handleSearch = () => {
+    dispatch(applyFilters()); // Новое действие для получения данных с API
   };
 
   return (
@@ -91,6 +98,7 @@ const SearchBar: React.FC = () => {
                 label="Район"
                 onChange={handleDistrictChange}
                 sx={{ bgcolor: "white" }}
+                disabled={loading}
               >
                 <MenuItem value="">Все районы</MenuItem>
                 <MenuItem value="center">Центр</MenuItem>
@@ -106,6 +114,7 @@ const SearchBar: React.FC = () => {
                 label="Возраст ребенка"
                 onChange={handleAgeGroupChange}
                 sx={{ bgcolor: "white" }}
+                disabled={loading}
               >
                 <MenuItem value="">Любой возраст</MenuItem>
                 <MenuItem value="0-1">0-1 год</MenuItem>
@@ -122,6 +131,7 @@ const SearchBar: React.FC = () => {
                 label="Метро"
                 onChange={handleMetroChange}
                 sx={{ bgcolor: "white" }}
+                disabled={loading}
               >
                 <MenuItem value="">Все станции</MenuItem>
                 {metroStations.map((station) => (
@@ -142,12 +152,16 @@ const SearchBar: React.FC = () => {
                 onClick={() => dispatch(resetFilters())}
                 startIcon={<RestartAltIcon />}
                 sx={{ width: { xs: "100%", md: "auto" } }}
+                disabled={loading}
               >
                 Сбросить
               </Button>
               <Button
                 variant="contained"
-                startIcon={<SearchIcon />}
+                onClick={handleSearch}
+                startIcon={
+                  loading ? <CircularProgress size={20} /> : <SearchIcon />
+                }
                 sx={{
                   width: { xs: "100%", md: "auto" },
                   px: 4,
@@ -156,8 +170,9 @@ const SearchBar: React.FC = () => {
                     background: `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
                   },
                 }}
+                disabled={loading}
               >
-                Найти
+                {loading ? "Поиск..." : "Найти"}
               </Button>
             </Stack>
           </Stack>
@@ -168,4 +183,3 @@ const SearchBar: React.FC = () => {
 };
 
 export default SearchBar;
-

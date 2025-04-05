@@ -22,8 +22,9 @@ import {
   Grid2,
 } from "@mui/material";
 import { Pool } from "@/types/poolsTypes";
-import { allPools } from "@/lib/allPools";
+// import { allPools } from "@/lib/allPools";
 import { metroStations } from "@/components/searchBar/metroStations";
+import PoolsService from "@/api/pools.service";
 
 interface PoolFormProps {
   editMode?: boolean;
@@ -60,25 +61,60 @@ const initialPool: Partial<Pool> = {
 
 const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
   const router = useRouter();
-  const [pool, setPool] = useState<Partial<Pool>>(initialPool);
   const [loading, setLoading] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loadingData, setLoadingData] = useState(editMode);
+  // const [error, setError] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  // Если режим редактирования, загружаем данные бассейна
+  const [pool, setPool] = useState<Partial<Pool>>({
+    name: "",
+    geometry: {
+      coordinates: [55.751244, 37.618423], // Центр Москвы по умолчанию
+    },
+    properties: {
+      CompanyMetaData: {
+        name: "",
+        address: "",
+        Phones: [{ type: "phone", formatted: "" }],
+        url: "",
+        Hours: { text: "" },
+        Categories: [{ name: "Бассейн для детей" }],
+        rating: 0,
+        reviews: [],
+      },
+      description: "",
+    },
+    services: [],
+    images: [],
+    priceRange: {
+      individual: 0,
+      group: 0,
+      trial: 0,
+    },
+    metroStations: [],
+  });
+
+  // Загрузка данных бассейна при редактировании
   useEffect(() => {
     if (editMode && poolId) {
-      const existingPool = allPools.find((p) => p.id === poolId);
-      if (existingPool) {
-        setPool(existingPool);
-      } else {
-        // Если бассейн не найден, перенаправляем на список
-        router.push("/admin/pools");
-      }
-    }
-  }, [editMode, poolId, router]);
+      const fetchPool = async () => {
+        try {
+          setLoadingData(true);
+          const poolData = await PoolsService.getPoolById(poolId);
+          setPool(poolData);
+        } catch (err: any) {
+          setError(err.message || "Ошибка при загрузке данных бассейна");
+        } finally {
+          setLoadingData(false);
+        }
+      };
 
-  // Обработка изменений в форме
+      fetchPool();
+    }
+  }, [editMode, poolId]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -102,14 +138,8 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
     } else {
       setPool((prev) => ({ ...prev, [name]: value }));
     }
-
-    // Сбрасываем ошибку для этого поля
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
   };
 
-  // Обработка изменений в числовых полях
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const numValue = value === "" ? 0 : parseFloat(value);
@@ -134,7 +164,6 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
       setPool((prev) => ({ ...prev, [name]: numValue }));
     }
   };
-
   // Обработка изменений в выпадающих списках
   const handleSelectChange = (e: SelectChangeEvent<string[]>) => {
     const { name, value } = e.target;
@@ -158,37 +187,57 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
         "Укажите стоимость индивидуального занятия";
     }
 
-    setErrors(newErrors);
+    // setError(newErrors);
+    setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   // Отправка формы
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
+    setError(null);
 
-    // Имитация сохранения (в реальном приложении здесь был бы API-запрос)
-    setTimeout(() => {
-      setLoading(false);
-      setSaveSuccess(true);
+    try {
+      if (editMode && poolId) {
+        await PoolsService.updatePool(poolId, pool);
+      } else {
+        await PoolsService.createPool(pool);
+      }
 
-      // Перенаправление на список бассейнов после небольшой задержки
+      setSuccess(true);
       setTimeout(() => {
         router.push("/admin/pools");
       }, 1500);
-    }, 1000);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || "Произошла ошибка при сохранении"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
+  if (loadingData) {
+    return (
+      <Box sx={{ p: 3, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
   return (
     <Box component="form" onSubmit={handleSubmit} noValidate>
-      {saveSuccess && (
+      {success && (
         <Alert severity="success" sx={{ mb: 3 }}>
           Бассейн успешно {editMode ? "обновлен" : "добавлен"}!
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
         </Alert>
       )}
 
@@ -207,8 +256,8 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
               name="properties.CompanyMetaData.name"
               value={pool.properties?.CompanyMetaData.name || ""}
               onChange={handleChange}
-              error={!!errors["properties.CompanyMetaData.name"]}
-              helperText={errors["properties.CompanyMetaData.name"]}
+              error={!!formErrors["properties.CompanyMetaData.name"]}
+              helperText={formErrors["properties.CompanyMetaData.name"]}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -219,8 +268,8 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
               name="properties.CompanyMetaData.address"
               value={pool.properties?.CompanyMetaData.address || ""}
               onChange={handleChange}
-              error={!!errors["properties.CompanyMetaData.address"]}
-              helperText={errors["properties.CompanyMetaData.address"]}
+              error={!!formErrors["properties.CompanyMetaData.address"]}
+              helperText={formErrors["properties.CompanyMetaData.address"]}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -285,8 +334,8 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
               name="priceRange.individual"
               value={pool.priceRange?.individual || ""}
               onChange={handleNumberChange}
-              error={!!errors["priceRange.individual"]}
-              helperText={errors["priceRange.individual"]}
+              error={!!formErrors["priceRange.individual"]}
+              helperText={formErrors["priceRange.individual"]}
               InputProps={{ inputProps: { min: 0 } }}
             />
           </Grid>

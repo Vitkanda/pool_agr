@@ -1,8 +1,9 @@
+// src/slices/auth/AdminSidebar.tsx
 import React from "react";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { logout } from "@/slices/auth/authSlice";
+import { logoutUser } from "@/slices/auth/authSlice";
 import {
   Box,
   List,
@@ -13,12 +14,12 @@ import {
   Divider,
   Avatar,
   Typography,
-  //   IconButton,
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PoolIcon from "@mui/icons-material/Pool";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import PersonIcon from "@mui/icons-material/Person";
+import PeopleIcon from "@mui/icons-material/People";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import Link from "next/link";
 
@@ -28,12 +29,13 @@ const AdminSidebar: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
     router.push("/admin/login");
   };
 
   const isActive = (path: string) => router.pathname === path;
 
+  // Базовые пункты меню
   const menuItems = [
     {
       text: "Панель управления",
@@ -49,6 +51,15 @@ const AdminSidebar: React.FC = () => {
       text: "Добавить бассейн",
       icon: <AddCircleOutlineIcon />,
       path: "/admin/pools/add",
+    },
+  ];
+
+  // Добавляем пункты меню для администраторов
+  const adminMenuItems = [
+    {
+      text: "Пользователи",
+      icon: <PeopleIcon />,
+      path: "/admin/users",
     },
   ];
 
@@ -128,6 +139,47 @@ const AdminSidebar: React.FC = () => {
             </ListItem>
           </Link>
         ))}
+
+        {/* Административные функции */}
+        {user?.role === "admin" && (
+          <>
+            <Divider sx={{ my: 1 }} />
+            {adminMenuItems.map((item) => (
+              <Link
+                key={item.path}
+                href={item.path}
+                passHref
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton
+                    selected={isActive(item.path)}
+                    sx={{
+                      "&.Mui-selected": {
+                        backgroundColor: "primary.light",
+                        color: "primary.contrastText",
+                        "&:hover": {
+                          backgroundColor: "primary.main",
+                        },
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: isActive(item.path)
+                          ? "primary.contrastText"
+                          : "inherit",
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={item.text} />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
+            ))}
+          </>
+        )}
       </List>
 
       <Divider />

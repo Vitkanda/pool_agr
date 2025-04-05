@@ -1,25 +1,42 @@
+// src/slices/auth/AdminRouteGuard.tsx
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { Box, CircularProgress, Typography } from "@mui/material";
+import AuthService from "@/api/auth.service";
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth
+  );
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(true);
 
   useEffect(() => {
-    // Проверка авторизации
-    if (!isAuthenticated || user?.role !== "admin") {
-      router.push("/admin/login");
-    } else {
-      setIsLoading(false);
-    }
+    // Проверяем авторизацию на клиенте
+    const checkAuth = async () => {
+      const isAuth = AuthService.isAuthenticated();
+      const currentUser = AuthService.getCurrentUser();
+
+      if (!isAuth || !currentUser) {
+        router.push("/admin/login");
+      } else if (
+        currentUser.role !== "admin" &&
+        currentUser.role !== "manager"
+      ) {
+        // Если роль не админ и не менеджер, перенаправляем
+        router.push("/");
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
   }, [isAuthenticated, router, user]);
 
   if (isLoading) {

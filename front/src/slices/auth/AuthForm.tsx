@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// src/slices/auth/AuthForm.tsx
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import {
   Box,
   Typography,
@@ -8,46 +10,42 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { useDispatch } from "react-redux";
-import { login } from "@/slices/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, clearError } from "@/slices/auth/authSlice";
+import { RootState, AppDispatch } from "@/store";
 
 const AuthForm: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const { loading, error, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Если пользователь аутентифицирован, перенаправляем на страницу админа
+    if (isAuthenticated) {
+      router.push("/admin/dashboard");
+    }
+  }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    // Очистка ошибки при размонтировании
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
-      setError("Пожалуйста, заполните все поля");
       return;
     }
-    
-    setLoading(true);
-    setError("");
-    
-    try {
-      // В реальном проекте здесь был бы запрос к API
-      // Для демонстрации используем простую проверку
-      if (email === "admin@example.com" && password === "password") {
-        dispatch(login({
-          id: "1",
-          email: email,
-          name: "Администратор",
-          role: "admin"
-        }));
-      } else {
-        setError("Неверный email или пароль");
-      }
-    } catch (err) {
-      setError("Ошибка авторизации. Попробуйте позже.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+
+    dispatch(loginUser({ email, password }));
   };
 
   return (
@@ -95,6 +93,7 @@ const AuthForm: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
           <TextField
             label="Пароль"
@@ -104,6 +103,7 @@ const AuthForm: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
           <Button
             type="submit"
@@ -116,8 +116,14 @@ const AuthForm: React.FC = () => {
             {loading ? <CircularProgress size={24} /> : "Войти"}
           </Button>
         </form>
-        
-        <Typography variant="caption" display="block" mt={2} align="center" color="text.secondary">
+
+        <Typography
+          variant="caption"
+          display="block"
+          mt={2}
+          align="center"
+          color="text.secondary"
+        >
           Для демо: Email: admin@example.com, Пароль: password
         </Typography>
       </Paper>

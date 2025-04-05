@@ -1,16 +1,56 @@
+// src/components/poolCards/PoolCards.tsx
 import React from "react";
 import { useRouter } from "next/router";
-import { Box, Typography, Card, CardMedia, CardContent } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import {
+  Box,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 import Image from "next/image";
 import Carousel from "react-material-ui-carousel";
-import { Pool } from "@/types/poolsTypes";
 
-interface PoolCardsProps {
-  pools: Pool[];
-}
-
-const PoolCards: React.FC<PoolCardsProps> = ({ pools }) => {
+const PoolCards: React.FC = () => {
   const router = useRouter();
+  const { pools, loading, error } = useSelector(
+    (state: RootState) => state.search
+  );
+
+  if (loading) {
+    return (
+      <Box sx={{ py: 6, textAlign: "center" }}>
+        <CircularProgress />
+        <Typography variant="h6" color="white" sx={{ mt: 2 }}>
+          Загрузка бассейнов...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ py: 6 }}>
+        <Alert severity="error" sx={{ maxWidth: 600, mx: "auto" }}>
+          {error}
+        </Alert>
+      </Box>
+    );
+  }
+
+  if (pools.length === 0) {
+    return (
+      <Box sx={{ py: 6, textAlign: "center" }}>
+        <Typography variant="h6" color="white">
+          Бассейны не найдены. Попробуйте изменить параметры поиска.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
