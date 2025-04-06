@@ -28,11 +28,15 @@ const HomePage: React.FC = () => {
       <section className="map-section">
         <div className="map-container">
           <PoolMap
-            locations={pools.map((pool) => ({
-              id: pool.id,
-              name: pool.properties.CompanyMetaData.name,
-              coordinates: pool.geometry.coordinates,
-            }))}
+            locations={
+              Array.isArray(pools)
+                ? pools.map((pool) => ({
+                    id: pool.id,
+                    name: pool.properties.CompanyMetaData.name,
+                    coordinates: pool.geometry.coordinates,
+                  }))
+                : []
+            }
             sx={{ width: "100%", height: "100%", borderRadius: "12px" }}
           />
         </div>

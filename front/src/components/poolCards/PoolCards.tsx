@@ -42,7 +42,7 @@ const PoolCards: React.FC = () => {
     );
   }
 
-  if (pools.length === 0) {
+  if (!Array.isArray(pools) || pools.length === 0) {
     return (
       <Box sx={{ py: 6, textAlign: "center" }}>
         <Typography variant="h6" color="white">
