@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// front/src/slices/pool-details/PoolForm.tsx
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
@@ -19,10 +19,13 @@ import {
   FormHelperText,
   Alert,
   CircularProgress,
-  Grid2,
+  Card,
+  CardMedia,
+  IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { Pool } from "@/types/poolsTypes";
-// import { allPools } from "@/lib/allPools";
 import { metroStations } from "@/components/searchBar/metroStations";
 import PoolsService from "@/api/pools.service";
 
@@ -63,12 +66,14 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(editMode);
-  // const [error, setError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
   const [pool, setPool] = useState<Partial<Pool>>(initialPool);
+
+  // Состояние для загрузки изображений
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState<string>("");
 
   // Загрузка данных бассейна при редактировании
   useEffect(() => {
@@ -78,6 +83,11 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
           setLoadingData(true);
           const poolData = await PoolsService.getPoolById(poolId);
           setPool(poolData);
+
+          // Установка списка изображений
+          if (poolData.images) {
+            setImageUrls(poolData.images);
+          }
         } catch (err: any) {
           setError(err.message || "Ошибка при загрузке данных бассейна");
         } finally {
@@ -138,10 +148,77 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
       setPool((prev) => ({ ...prev, [name]: numValue }));
     }
   };
+
   // Обработка изменений в выпадающих списках
   const handleSelectChange = (e: SelectChangeEvent<string[]>) => {
     const { name, value } = e.target;
     setPool((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCoordinateChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    index: number
+  ) => {
+    const { value } = e.target;
+    const numValue = value === "" ? 0 : parseFloat(value);
+
+    setPool((prev) => {
+      const newPool = { ...prev };
+      if (!newPool.geometry) {
+        newPool.geometry = { coordinates: [0, 0] };
+      }
+
+      const newCoordinates = [...newPool.geometry.coordinates];
+      newCoordinates[index] = numValue;
+      newPool.geometry.coordinates = newCoordinates as [number, number];
+
+      return newPool;
+    });
+  };
+
+  // Обработка добавления изображения
+  const handleAddImage = () => {
+    if (newImageUrl.trim()) {
+      setImageUrls([...imageUrls, newImageUrl.trim()]);
+      setNewImageUrl("");
+
+      // Также обновляем состояние бассейна
+      setPool((prev) => ({
+        ...prev,
+        images: [...(prev.images || []), newImageUrl.trim()],
+      }));
+    }
+  };
+
+  // Обработка удаления изображения
+  const handleRemoveImage = (index: number) => {
+    const updatedUrls = [...imageUrls];
+    updatedUrls.splice(index, 1);
+    setImageUrls(updatedUrls);
+
+    // Также обновляем состояние бассейна
+    setPool((prev) => ({
+      ...prev,
+      images: prev.images?.filter((_, i) => i !== index) || [],
+    }));
+  };
+
+  // Обработка добавления метро
+  const handleMetroChange = (e: SelectChangeEvent<string[]>) => {
+    const selectedNames =
+      typeof e.target.value === "string" ? [e.target.value] : e.target.value;
+
+    // Создаем объекты станций метро для выбранных имен
+    const selectedStations = selectedNames.map((name) => ({
+      name,
+      coordinates: [37.0, 55.0] as [number, number], // Заглушка
+      distance: "1 км", // Заглушка
+    }));
+
+    setPool((prev) => ({
+      ...prev,
+      metroStations: selectedStations,
+    }));
   };
 
   // Валидация формы
@@ -161,7 +238,6 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
         "Укажите стоимость индивидуального занятия";
     }
 
-    // setError(newErrors);
     setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -171,6 +247,9 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
     e.preventDefault();
 
     if (!validateForm()) return;
+
+    // Убедимся, что изображения добавлены в пул перед отправкой
+    pool.images = imageUrls;
 
     setLoading(true);
     setError(null);
@@ -202,6 +281,7 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
       </Box>
     );
   }
+
   return (
     <Box component="form" onSubmit={handleSubmit} noValidate>
       {success && (
@@ -221,7 +301,7 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
         </Typography>
         <Divider sx={{ mb: 3 }} />
 
-        <Grid2 container spacing={3}>
+        <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
               label="Название бассейна"
@@ -289,7 +369,38 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
               onChange={handleChange}
             />
           </Grid>
-        </Grid2>
+        </Grid>
+      </Paper>
+
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Координаты
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Широта"
+              fullWidth
+              type="number"
+              value={pool.geometry?.coordinates[0] || 0}
+              onChange={(e) => handleCoordinateChange(e, 0)}
+              inputProps={{ step: "0.000001" }}
+              helperText="Координата широты (первое число)"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Долгота"
+              fullWidth
+              type="number"
+              value={pool.geometry?.coordinates[1] || 0}
+              onChange={(e) => handleCoordinateChange(e, 1)}
+              inputProps={{ step: "0.000001" }}
+              helperText="Координата долготы (второе число)"
+            />
+          </Grid>
+        </Grid>
       </Paper>
 
       <Paper sx={{ p: 3, mb: 3 }}>
@@ -374,36 +485,97 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
 
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Местоположение
+          Изображения
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
+
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Box sx={{ display: "flex", alignItems: "flex-end", mb: 2 }}>
+              <TextField
+                label="URL изображения"
+                fullWidth
+                value={newImageUrl}
+                onChange={(e) => setNewImageUrl(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                sx={{ mr: 1 }}
+              />
+              <Button
+                variant="contained"
+                startIcon={<AddPhotoAlternateIcon />}
+                onClick={handleAddImage}
+                disabled={!newImageUrl.trim()}
+              >
+                Добавить
+              </Button>
+            </Box>
+
+            {/* Список добавленных изображений */}
+            {imageUrls.length > 0 ? (
+              <Grid container spacing={2}>
+                {imageUrls.map((url, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={index}>
+                    <Card>
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image={url}
+                        alt={`Изображение ${index + 1}`}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "https://placehold.co/400x300?text=Ошибка+загрузки";
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          p: 1,
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          noWrap
+                          sx={{ maxWidth: "80%" }}
+                        >
+                          {url.split("/").pop()}
+                        </Typography>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Typography color="text.secondary">
+                Нет добавленных изображений
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
+      </Paper>
+
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Метро
         </Typography>
         <Divider sx={{ mb: 3 }} />
 
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <FormControl fullWidth>
-              <InputLabel>Ближайшее метро</InputLabel>
+              <InputLabel>Ближайшие станции метро</InputLabel>
               <Select
                 multiple
                 value={pool.metroStations?.map((station) => station.name) || []}
-                onChange={(e: SelectChangeEvent<string[]>) => {
-                  const selectedNames =
-                    typeof e.target.value === "string"
-                      ? [e.target.value]
-                      : e.target.value;
-
-                  // Создаем объекты станций метро для выбранных имен
-                  const selectedStations = selectedNames.map((name) => ({
-                    name,
-                    coordinates: [37.0, 55.0] as [number, number], // Заглушка
-                    distance: "Н/Д", // Заглушка
-                  }));
-
-                  setPool((prev) => ({
-                    ...prev,
-                    metroStations: selectedStations,
-                  }));
-                }}
-                input={<OutlinedInput label="Ближайшее метро" />}
+                onChange={handleMetroChange}
+                input={<OutlinedInput label="Ближайшие станции метро" />}
                 renderValue={(selected) => (
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                     {selected.map((value) => (

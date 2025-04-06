@@ -1,53 +1,74 @@
-  version: '3.8'
+
+# docker-compose.yml
+version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:4000/api
-
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    depends_on:
-      - postgres
-    environment:
-      - NODE_ENV=development
-      - PORT=4000
-      - FRONTEND_URL=http://localhost:3000
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - DB_DATABASE=pool_aggregator
-      - JWT_SECRET=your_jwt_secret_key
-      - JWT_EXPIRATION=1d
-
+  # База данных PostgreSQL
   postgres:
-    image: postgres:14
+    image: postgres:15-alpine
+    container_name: pool-aggregator-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pool_aggregator
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pool_network
+
+  # Backend приложение
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: pool-aggregator-backend
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=pool_aggregator
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: pool_aggregator
+      JWT_SECRET: your_jwt_secret_key_change_in_production
+      PORT: 4000
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+    networks:
+      - pool_network
+    volumes:
+      - ./back:/app
+      - /app/node_modules
+    command: >
+      sh -c "npm run start:dev"
+
+  # Frontend приложение
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile.frontend
+    container_name: pool-aggregator-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - pool_network
+    volumes:
+      - ./front:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+
+networks:
+  pool_network:
+    driver: bridge
 
 volumes:
   postgres_data:
