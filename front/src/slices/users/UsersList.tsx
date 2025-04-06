@@ -1,6 +1,6 @@
 // src/slices/users/UsersList.tsx
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import {
   Paper,
   Typography,
@@ -19,11 +19,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import UsersService from '@/api/users.service';
-import { User } from '@/api/auth.service';
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import UsersService from "@/api/users.service";
+import { User } from "@/api/auth.service";
 
 const UsersList: React.FC = () => {
   const router = useRouter();
@@ -37,10 +37,13 @@ const UsersList: React.FC = () => {
     setLoading(true);
     try {
       const response = await UsersService.getAllUsers();
-      setUsers(response.items);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      // console.log("response==>", JSON.stringify(response));
+
+      setUsers(response);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      setError(err.message || 'Ошибка при загрузке пользователей');
+      setError(err.message || "Ошибка при загрузке пользователей");
     } finally {
       setLoading(false);
     }
@@ -63,10 +66,10 @@ const UsersList: React.FC = () => {
     if (userToDelete) {
       try {
         await UsersService.deleteUser(userToDelete);
-        setUsers(users.filter(user => user.id !== userToDelete));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setUsers(users.filter((user) => user.id !== userToDelete));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        setError(err.message || 'Ошибка при удалении пользователя');
+        setError(err.message || "Ошибка при удалении пользователя");
       }
     }
     setDeleteDialogOpen(false);
@@ -83,17 +86,25 @@ const UsersList: React.FC = () => {
   }
 
   if (error) {
-    return <Box sx={{ p: 3, color: 'error.main' }}>Ошибка: {error}</Box>;
+    return <Box sx={{ p: 3, color: "error.main" }}>Ошибка: {error}</Box>;
   }
-
   return (
     <>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" component="h2">Управление пользователями</Typography>
-        <Button 
-          variant="contained" 
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h5" component="h2">
+          Управление пользователями
+        </Typography>
+        <Button
+          variant="contained"
           color="primary"
-          onClick={() => router.push('/admin/users/add')}
+          onClick={() => router.push("/admin/users/add")}
         >
           Добавить пользователя
         </Button>
@@ -110,28 +121,24 @@ const UsersList: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
+            {users?.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
-                  <Chip 
-                    label={user.role} 
-                    color={user.role === 'admin' ? 'primary' : 'default'}
-                    size="small"
-                  />
+                  <Chip label={user.role} color="default" size="small" />
                 </TableCell>
                 <TableCell>
-                  <IconButton 
-                    size="small" 
-                    color="primary" 
+                  <IconButton
+                    size="small"
+                    color="primary"
                     onClick={() => handleEditUser(user.id)}
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton 
-                    size="small" 
-                    color="error" 
+                  <IconButton
+                    size="small"
+                    color="error"
                     onClick={() => handleDeleteClick(user.id)}
                   >
                     <DeleteIcon />
@@ -144,14 +151,12 @@ const UsersList: React.FC = () => {
       </TableContainer>
 
       {/* Диалог подтверждения удаления */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={handleDeleteCancel}
-      >
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
         <DialogTitle>Удаление пользователя</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Вы уверены, что хотите удалить этого пользователя? Это действие нельзя отменить.
+            Вы уверены, что хотите удалить этого пользователя? Это действие
+            нельзя отменить.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

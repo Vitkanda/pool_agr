@@ -246,7 +246,7 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
                   onChange={handlePoolsChange}
                   label="Управляемые бассейны"
                 >
-                  {pools.map((pool) => (
+                  {pools?.map((pool) => (
                     <MenuItem key={pool.id} value={pool.id}>
                       {pool.properties.CompanyMetaData.name}
                     </MenuItem>
