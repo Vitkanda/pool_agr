@@ -3,16 +3,14 @@
 import api from "./api";
 import { Pool } from "@/types/poolsTypes";
 
-interface PoolsResponse {
-  items: Pool[];
-  total: number;
-}
+// interface PoolsResponse {
+//   items: Pool[];
+//   total: number;
+// }
 
 const PoolsService = {
-  getAllPools: async (filters?: any): Promise<PoolsResponse> => {
-    const response = await api.get<PoolsResponse>("/pools", {
-      params: filters,
-    });
+  getAllPools: async (): Promise<Pool[]> => {
+    const response = await api.get<Pool[]>('/pools');
     return response.data;
   },
 

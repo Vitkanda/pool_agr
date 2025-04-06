@@ -1,6 +1,6 @@
 // src/slices/users/UserForm.tsx
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import {
   Box,
   Paper,
@@ -17,11 +17,14 @@ import {
   CircularProgress,
   Divider,
   SelectChangeEvent,
-} from '@mui/material';
-import UsersService, { CreateUserDTO, UpdateUserDTO } from '@/api/users.service';
-import PoolsService from '@/api/pools.service';
-import { Pool } from '@/types/poolsTypes';
-import { User } from '@/api/auth.service';
+} from "@mui/material";
+import UsersService, {
+  CreateUserDTO,
+  UpdateUserDTO,
+} from "@/api/users.service";
+import PoolsService from "@/api/pools.service";
+import { Pool } from "@/types/poolsTypes";
+import { User } from "@/api/auth.service";
 
 interface UserFormProps {
   editMode?: boolean;
@@ -35,10 +38,10 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
   const [success, setSuccess] = useState(false);
   const [pools, setPools] = useState<Pool[]>([]);
   const [user, setUser] = useState<Partial<User & { password: string }>>({
-    name: '',
-    email: '',
-    password: '',
-    role: 'user',
+    name: "",
+    email: "",
+    password: "",
+    role: "user",
   });
   const [selectedPools, setSelectedPools] = useState<string[]>([]);
 
@@ -54,19 +57,20 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
             name: userData.name,
             email: userData.email,
             role: userData.role,
-            password: '',
+            password: "",
           });
-          
+
           // Если есть управляемые бассейны, устанавливаем их
           if (userData.managedPools) {
-            setSelectedPools(userData.managedPools.map(pool => pool.id));
+            setSelectedPools(userData.managedPools.map((pool) => pool.id));
           }
 
           // Загрузка всех бассейнов для выбора
           const poolsData = await PoolsService.getAllPools();
-          setPools(poolsData.items);
+          // console.log('poolsData===>',JSON.stringify(poolsData))
+          setPools(poolsData);
         } catch (err: any) {
-          setError(err.message || 'Ошибка при загрузке данных');
+          setError(err.message || "Ошибка при загрузке данных");
         } finally {
           setLoading(false);
         }
@@ -74,9 +78,9 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
         // Просто загружаем список бассейнов для новых пользователей
         try {
           const poolsData = await PoolsService.getAllPools();
-          setPools(poolsData.items);
+          setPools(poolsData);
         } catch (err: any) {
-          setError(err.message || 'Ошибка при загрузке бассейнов');
+          setError(err.message || "Ошибка при загрузке бассейнов");
         }
       }
     };
@@ -84,13 +88,14 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
     fetchUserAndPools();
   }, [editMode, userId]);
 
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUser(prev => ({ ...prev, [name]: value }));
+    setUser((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleRoleChange = (e: SelectChangeEvent) => {
-    setUser(prev => ({ ...prev, role: e.target.value }));
+    setUser((prev) => ({ ...prev, role: e.target.value }));
   };
 
   const handlePoolsChange = (e: SelectChangeEvent<string[]>) => {
@@ -101,73 +106,78 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       if (editMode && userId) {
-        // Подготавливаем объект для обновления
+        // Обновляем данные пользователя
         const updateData: UpdateUserDTO = {
           name: user.name,
           email: user.email,
           role: user.role,
         };
-        
-        // Включаем пароль только если он был изменен
+
         if (user.password) {
           updateData.password = user.password;
         }
-        
-        // Обновляем пользователя
+
         await UsersService.updateUser(userId, updateData);
-        
-        // Обновляем назначенные бассейны
-        // Здесь нужна будет реализация на бэкенде для обновления привязок
-        // ...
-        
+
+        // Обновляем привязку бассейнов (только если роль manager или admin)
+        if (user.role === "manager" || user.role === "admin") {
+          await UsersService.updateUserPools(userId, selectedPools);
+        }
       } else {
-        // Создаем нового пользователя
+        // Создание нового пользователя
         const createData: CreateUserDTO = {
           name: user.name!,
           email: user.email!,
           password: user.password!,
           role: user.role!,
         };
-        
+
         const newUser = await UsersService.createUser(createData);
-        
-        // Назначаем выбранные бассейны новому пользователю
-        if (selectedPools.length > 0) {
+
+        // Привязка бассейнов
+        if (
+          (user.role === "manager" || user.role === "admin") &&
+          selectedPools.length > 0
+        ) {
           for (const poolId of selectedPools) {
             await UsersService.assignPoolToUser(newUser.id, poolId);
           }
         }
       }
-      
+
       setSuccess(true);
-      
-      // Редирект через небольшую задержку
+
       setTimeout(() => {
-        router.push('/admin/users');
+        router.push("/admin/users");
       }, 1500);
-      
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Произошла ошибка при сохранении');
+      setError(
+        err.response?.data?.message || "Произошла ошибка при сохранении"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   if (loading && editMode) {
-    return <Box sx={{ p: 3, textAlign: 'center' }}><CircularProgress /></Box>;
+    return (
+      <Box sx={{ p: 3, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
     <Box component="form" onSubmit={handleSubmit} noValidate>
       {success && (
         <Alert severity="success" sx={{ mb: 3 }}>
-          Пользователь успешно {editMode ? 'обновлен' : 'создан'}!
+          Пользователь успешно {editMode ? "обновлен" : "создан"}!
         </Alert>
       )}
-      
+
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
@@ -176,7 +186,7 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
 
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          {editMode ? 'Редактирование пользователя' : 'Создание пользователя'}
+          {editMode ? "Редактирование пользователя" : "Создание пользователя"}
         </Typography>
         <Divider sx={{ mb: 3 }} />
 
@@ -185,7 +195,7 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
             <TextField
               label="Имя пользователя"
               name="name"
-              value={user.name || ''}
+              value={user.name || ""}
               onChange={handleChange}
               fullWidth
               required
@@ -197,7 +207,7 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
               label="Email"
               name="email"
               type="email"
-              value={user.email || ''}
+              value={user.email || ""}
               onChange={handleChange}
               fullWidth
               required
@@ -209,7 +219,7 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
               label={editMode ? "Новый пароль" : "Пароль"}
               name="password"
               type="password"
-              value={user.password || ''}
+              value={user.password || ""}
               onChange={handleChange}
               fullWidth
               required={!editMode}
@@ -222,7 +232,7 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
               <InputLabel>Роль</InputLabel>
               <Select
                 name="role"
-                value={user.role || 'user'}
+                value={user.role || "user"}
                 onChange={handleRoleChange}
                 label="Роль"
               >
@@ -231,12 +241,13 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
                 <MenuItem value="user">Пользователь</MenuItem>
               </Select>
               <FormHelperText>
-                Администраторы имеют полный доступ. Менеджеры управляют назначенными бассейнами.
+                Администраторы имеют полный доступ. Менеджеры управляют
+                назначенными бассейнами.
               </FormHelperText>
             </FormControl>
           </Grid>
-          
-          {user.role === 'manager' && (
+
+          {user.role === "manager" && (
             <Grid item xs={12}>
               <FormControl fullWidth disabled={loading}>
                 <InputLabel>Управляемые бассейны</InputLabel>
@@ -261,10 +272,10 @@ const UserForm: React.FC<UserFormProps> = ({ editMode = false, userId }) => {
         </Grid>
       </Paper>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
         <Button
           variant="outlined"
-          onClick={() => router.push('/admin/users')}
+          onClick={() => router.push("/admin/users")}
           disabled={loading}
         >
           Отмена

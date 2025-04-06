@@ -37,6 +37,10 @@ const UsersService = {
     return response.data;
   },
 
+  updateUserPools: async (userId: string, poolIds: string[]): Promise<void> => {
+    await api.patch(`/users/${userId}/pools`, { pools: poolIds });
+  },
+
   updateUser: async (id: string, user: UpdateUserDTO): Promise<User> => {
     const response = await api.patch<User>(`/users/${id}`, user);
     return response.data;

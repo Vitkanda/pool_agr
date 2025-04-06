@@ -8,11 +8,9 @@ import { Repository } from "typeorm";
 import { User, UserRole } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from "bcryptjs";
 
-import { Pool } from '../pools/entities/pool.entity';
-
-
+import { Pool } from "../pools/entities/pool.entity";
 
 @Injectable()
 export class UsersService {
@@ -84,6 +82,28 @@ export class UsersService {
 
     // Обновляем пользователя
     this.usersRepository.merge(user, updateUserDto);
+    return this.usersRepository.save(user);
+  }
+
+  async updateUserPools(userId: string, poolIds: string[]): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ["managedPools"],
+    });
+
+    if (!user) {
+      throw new NotFoundException("Пользователь не найден");
+    }
+
+    // Получаем репозиторий бассейнов
+    const poolRepository = this.usersRepository.manager.getRepository(Pool);
+
+    // Находим все бассейны по переданным ID
+    const pools = await poolRepository.findByIds(poolIds);
+
+    // Обновляем связи
+    user.managedPools = pools;
+
     return this.usersRepository.save(user);
   }
 
