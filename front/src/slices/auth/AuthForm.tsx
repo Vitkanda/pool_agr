@@ -40,11 +40,12 @@ const AuthForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    console.log("Отправка формы с данными:", { email, password });
     if (!email || !password) {
+      console.log("Пустые поля, отмена отправки");
       return;
     }
-
+    console.log("Диспетчеризация loginUser");
     dispatch(loginUser({ email, password }));
   };
 
