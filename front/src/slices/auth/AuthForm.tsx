@@ -117,16 +117,6 @@ const AuthForm: React.FC = () => {
             {loading ? <CircularProgress size={24} /> : "Войти"}
           </Button>
         </form>
-
-        <Typography
-          variant="caption"
-          display="block"
-          mt={2}
-          align="center"
-          color="text.secondary"
-        >
-          Для демо: Email: admin@example.com, Пароль: password
-        </Typography>
       </Paper>
     </Box>
   );

@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, In } from "typeorm";
 import { User, UserRole } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -47,11 +47,16 @@ export class UsersService {
     });
   }
 
-  async findOne(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({
+  async findOne(id: string, withRelations: boolean = false): Promise<User> {
+    const options: any = {
       where: { id },
-      relations: ["managedPools"],
-    });
+    };
+
+    if (withRelations) {
+      options.relations = ["managedPools"];
+    }
+
+    const user = await this.usersRepository.findOne(options);
 
     if (!user) {
       throw new NotFoundException(`Пользователь с ID ${id} не найден`);
@@ -60,10 +65,19 @@ export class UsersService {
     return user;
   }
 
-  async findByEmail(email: string): Promise<User> {
-    const user = await this.usersRepository.findOne({
+  async findByEmail(
+    email: string,
+    withRelations: boolean = false
+  ): Promise<User> {
+    const options: any = {
       where: { email },
-    });
+    };
+
+    if (withRelations) {
+      options.relations = ["managedPools"];
+    }
+
+    const user = await this.usersRepository.findOne(options);
 
     if (!user) {
       throw new NotFoundException(`Пользователь с email ${email} не найден`);
@@ -99,7 +113,7 @@ export class UsersService {
     const poolRepository = this.usersRepository.manager.getRepository(Pool);
 
     // Находим все бассейны по переданным ID
-    const pools = await poolRepository.findByIds(poolIds);
+    const pools = await poolRepository.findBy({ id: In(poolIds) });
 
     // Обновляем связи
     user.managedPools = pools;
@@ -108,8 +122,15 @@ export class UsersService {
   }
 
   async assignPoolToUser(userId: string, poolId: string): Promise<User> {
-    // Находим пользователя и проверяем, что он существует
-    const user = await this.findOne(userId);
+    // Находим пользователя с отношениями
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ["managedPools"],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Пользователь с ID ${userId} не найден`);
+    }
 
     // Проверяем, что роль пользователя - менеджер или админ
     if (user.role !== UserRole.MANAGER && user.role !== UserRole.ADMIN) {
@@ -126,18 +147,9 @@ export class UsersService {
       throw new NotFoundException(`Бассейн с ID ${poolId} не найден`);
     }
 
-    // Загружаем связи пользователя с бассейнами, если их еще нет
+    // Инициализируем массив, если его еще нет
     if (!user.managedPools) {
-      const userWithPools = await this.usersRepository.findOne({
-        where: { id: userId },
-        relations: ["managedPools"],
-      });
-
-      if (userWithPools) {
-        user.managedPools = userWithPools.managedPools || [];
-      } else {
-        user.managedPools = [];
-      }
+      user.managedPools = [];
     }
 
     // Проверяем, не присвоен ли уже этот бассейн пользователю

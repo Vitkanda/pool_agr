@@ -1,5 +1,5 @@
-// front/src/slices/pool-details/PoolForm.tsx
-import React, { useState, useEffect } from "react";
+// src/slices/pool-details/PoolForm.tsx
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import {
   Box,
@@ -28,6 +28,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { Pool } from "@/types/poolsTypes";
 import { metroStations } from "@/components/searchBar/metroStations";
 import PoolsService from "@/api/pools.service";
+import AuthService from "@/api/auth.service";
 
 interface PoolFormProps {
   editMode?: boolean;
@@ -70,34 +71,60 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [pool, setPool] = useState<Partial<Pool>>(initialPool);
+  const [unauthorized, setUnauthorized] = useState(false);
+  const [dataFetched, setDataFetched] = useState(false); // Флаг для отслеживания загрузки данных
 
   // Состояние для загрузки изображений
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState<string>("");
 
-  // Загрузка данных бассейна при редактировании
-  useEffect(() => {
-    if (editMode && poolId) {
-      const fetchPool = async () => {
-        try {
-          setLoadingData(true);
-          const poolData = await PoolsService.getPoolById(poolId);
-          setPool(poolData);
+  // Получаем текущего пользователя
+  const currentUser = AuthService.getCurrentUser();
 
-          // Установка списка изображений
-          if (poolData.images) {
-            setImageUrls(poolData.images);
-          }
-        } catch (err: any) {
-          setError(err.message || "Ошибка при загрузке данных бассейна");
-        } finally {
+  // Выносим fetchPool в useCallback, чтобы избежать пересоздания функции
+  const fetchPool = useCallback(async () => {
+    if (!editMode || !poolId || dataFetched) return;
+
+    try {
+      setLoadingData(true);
+      console.log("Загрузка данных бассейна с ID:", poolId);
+
+      const poolData = await PoolsService.getPoolById(poolId);
+
+      // Проверяем права доступа для менеджера
+      if (currentUser?.role === "manager") {
+        const hasAccess = currentUser.managedPools?.some(
+          (managedPool) => managedPool.id === poolId
+        );
+
+        if (!hasAccess) {
+          setUnauthorized(true);
+          setError("У вас нет прав на редактирование этого бассейна");
           setLoadingData(false);
+          return;
         }
-      };
+      }
 
-      fetchPool();
+      setPool(poolData);
+
+      // Установка списка изображений
+      if (poolData.images) {
+        setImageUrls(poolData.images);
+      }
+
+      setDataFetched(true); // Отмечаем, что данные загружены
+    } catch (err: any) {
+      console.error("Ошибка при загрузке данных бассейна:", err);
+      setError(err.message || "Ошибка при загрузке данных бассейна");
+    } finally {
+      setLoadingData(false);
     }
-  }, [editMode, poolId]);
+  }, [editMode, poolId, currentUser, dataFetched]);
+
+  // Используем useEffect только один раз для загрузки данных
+  useEffect(() => {
+    fetchPool();
+  }, [fetchPool]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -274,10 +301,26 @@ const PoolForm: React.FC<PoolFormProps> = ({ editMode = false, poolId }) => {
     }
   };
 
+  if (unauthorized) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          У вас нет прав на редактирование этого бассейна
+        </Alert>
+        <Button variant="contained" onClick={() => router.push("/admin/pools")}>
+          Вернуться к списку бассейнов
+        </Button>
+      </Box>
+    );
+  }
+
   if (loadingData) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
         <CircularProgress />
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          Загрузка данных бассейна...
+        </Typography>
       </Box>
     );
   }

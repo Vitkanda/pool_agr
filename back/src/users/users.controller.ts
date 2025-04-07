@@ -38,7 +38,7 @@ export class UsersController {
   @Get(":id")
   @UseGuards(JwtAuthGuard)
   findOne(@Param("id") id: string) {
-    return this.usersService.findOne(id);
+    return this.usersService.findOne(id, true);
   }
 
   @Patch(":id/pools")
