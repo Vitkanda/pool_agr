@@ -9,8 +9,22 @@ import { Pool } from "@/types/poolsTypes";
 // }
 
 const PoolsService = {
-  getAllPools: async (): Promise<Pool[]> => {
-    const response = await api.get<Pool[]>('/pools');
+  getAllPools: async (filters?: {
+    district?: string;
+    ageGroup?: string;
+    metro?: string;
+  }): Promise<Pool[]> => {
+    const params = new URLSearchParams();
+
+    if (filters?.district) params.append("district", filters.district);
+    if (filters?.ageGroup) params.append("ageGroup", filters.ageGroup);
+    if (filters?.metro) params.append("metro", filters.metro);
+
+    const queryString = params.toString();
+
+    const response = await api.get<Pool[]>(
+      `/pools${queryString ? `?${queryString}` : ""}`
+    );
     return response.data;
   },
 

@@ -20,7 +20,7 @@ import {
   DialogContentText,
   DialogTitle,
   CircularProgress,
-  Alert
+  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -36,7 +36,7 @@ const PoolsList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [poolToDelete, setPoolToDelete] = useState<string | null>(null);
-  
+
   // Получаем текущего пользователя
   const currentUser = AuthService.getCurrentUser();
 
@@ -44,15 +44,17 @@ const PoolsList: React.FC = () => {
     setLoading(true);
     try {
       const response = await PoolsService.getAllPools();
-      
+
       // Если пользователь админ, показываем все бассейны
       // Если менеджер - только те, которые ему назначены
       if (currentUser?.role === "admin") {
         setPools(response);
       } else if (currentUser?.role === "manager" && currentUser.managedPools) {
         // Получаем только бассейны, которыми управляет менеджер
-        const filteredPools = response.filter(pool => 
-          currentUser.managedPools?.some(managedPool => managedPool.id === pool.id)
+        const filteredPools = response.filter((pool) =>
+          currentUser.managedPools?.some(
+            (managedPool) => managedPool.id === pool.id
+          )
         );
         setPools(filteredPools);
       } else {
@@ -126,9 +128,7 @@ const PoolsList: React.FC = () => {
         }}
       >
         <Typography variant="h5" component="h2">
-          {currentUser?.role === "manager" 
-            ? "Ваши бассейны" 
-            : "Все бассейны"}
+          {currentUser?.role === "manager" ? "Ваши бассейны" : "Все бассейны"}
         </Typography>
         <Button
           variant="contained"
@@ -141,8 +141,8 @@ const PoolsList: React.FC = () => {
 
       {pools.length === 0 ? (
         <Alert severity="info">
-          {currentUser?.role === "manager" 
-            ? "Вам не назначены бассейны для управления" 
+          {currentUser?.role === "manager"
+            ? "Вам не назначены бассейны для управления"
             : "Список бассейнов пуст"}
         </Alert>
       ) : (
@@ -162,16 +162,18 @@ const PoolsList: React.FC = () => {
               {pools.map((pool) => (
                 <TableRow key={pool.id}>
                   <TableCell>{pool.properties.CompanyMetaData.name}</TableCell>
-                  <TableCell>{pool.properties.CompanyMetaData.address}</TableCell>
+                  <TableCell>
+                    {pool.properties.CompanyMetaData.address}
+                  </TableCell>
                   <TableCell>
                     {pool.metroStations && pool.metroStations.length > 0
                       ? pool.metroStations[0].name
                       : "Не указано"}
                   </TableCell>
                   <TableCell>
-                    <Chip 
-                      label={pool.properties.CompanyMetaData.rating.toFixed(1)} 
-                      color="primary" 
+                    <Chip
+                      label={pool.properties.CompanyMetaData.rating.toFixed(1)}
+                      color="primary"
                       size="small"
                     />
                   </TableCell>
@@ -206,7 +208,8 @@ const PoolsList: React.FC = () => {
         <DialogTitle>Удаление бассейна</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Вы уверены, что хотите удалить этот бассейн? Это действие нельзя отменить.
+            Вы уверены, что хотите удалить этот бассейн? Это действие нельзя
+            отменить.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

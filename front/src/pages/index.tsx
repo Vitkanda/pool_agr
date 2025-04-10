@@ -11,6 +11,8 @@ const HomePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { pools } = useSelector((state: RootState) => state.search);
 
+  console.log("pools for map", JSON.stringify(pools));
+
   // Загрузка бассейнов при первом рендере
   useEffect(() => {
     dispatch(applyFilters());
@@ -25,7 +27,10 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      <section className="map-section">
+      <section
+        className="map-section"
+        style={{ display: "flex", justifyContent: "center", padding: "20px 0" }}
+      >
         <div className="map-container">
           <PoolMap
             locations={
@@ -33,11 +38,14 @@ const HomePage: React.FC = () => {
                 ? pools.map((pool) => ({
                     id: pool.id,
                     name: pool.properties.CompanyMetaData.name,
-                    coordinates: pool.geometry.coordinates,
+                    coordinates: [
+                      pool.geometry.coordinates[1],
+                      pool.geometry.coordinates[0],
+                    ],
                   }))
                 : []
             }
-            sx={{ width: "100%", height: "100%", borderRadius: "12px" }}
+            sx={{ width: "800px", height: "400px", borderRadius: "12px" }}
           />
         </div>
       </section>

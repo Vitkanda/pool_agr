@@ -36,7 +36,7 @@ export const applyFilters = createAsyncThunk(
       };
 
       const response = await PoolsService.getAllPools(filters);
-      return response.items;
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.message || "Ошибка при загрузке бассейнов");
     }
